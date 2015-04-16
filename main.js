@@ -2,7 +2,10 @@
 var assignedTask = null;
 var channelContext = null;
 var bufferContext = null;
-
+var amLying = false;
+var lieImPlaykng;
+var addedSegIds = [];
+var remSegIds = [];
 
 // constants
 var CHUNK_SIZE = 128;
@@ -198,25 +201,63 @@ Tile.prototype.segIdForPosition = function(x, y) {
 // the visibility of the segment in 3d view, and the presence of the segment in the selected list (for submission)
 
 function selectSegId(segId) {
+  console.log("adding more segids");
+ 
+  if(amLying){
+    if(!isSeed(segId)){
+      console.log("adding added segment");
+      addedSegIds[addedSegIds.length] = segId;
+    }else{
+       var lieIdx = remSegIds.indexOf(segId);
+      remSegIds.splice(lieIdx,1);
+    }
+  }
   assignedTask.selected.push(segId);
   assignedTask.tiles[currentTile].draw();
   displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
+
 }
 
 function deselectSegId(segId) {
-  var selectedIdx = assignedTask.selected.indexOf(segId);
-  assignedTask.selected.splice(selectedIdx, 1);
+  if( amLying){
+    if(isSeed(segId) ){
+      remSegIds[remSegIds.length] = segId;
+    }
+    else{
+      var lieIdx = addedSegIds.indexOf(segId);
+      addedSegIds.splice(lieIdx,1);
+
+      var selectedIdx = assignedTask.selected.indexOf(segId);
+      assignedTask.selected.splice(selectedIdx, 1);
+ 
+    }
+  }
+  else{
+    var selectedIdx = assignedTask.selected.indexOf(segId);
+    assignedTask.selected.splice(selectedIdx, 1);
+  }
 
   assignedTask.tiles[currentTile].draw();
   THREEDViewRemoveSegment(segId);
 }
 
 function toggleSegId(segId) {
-  if (segId === 0 || isSeed(segId)) {
+  var partOfOriginial;
+  if (segId === 0 ) {
     return; // it a segment border or a seed
   }
+  if(isSeed(segId)){
+    partOfOriginial = true;
+    console.log("in orig remove")
 
-  if (isSelected(segId)) {
+  }
+  else{
+    partOfOriginial = false;
+
+    console.log("in orig add")
+  }
+
+  if (isSelected(segId) || partOfOriginial) {
     deselectSegId(segId);
   } else {
     selectSegId(segId);
@@ -304,6 +345,20 @@ function register2dInteractions() {
     } else if (e.which === 115) { // s key
       currentTile += 1;
     }
+
+    if(e.which === 112){ //P key, test out lie mode
+      amLying = !amLying;
+      $('#modeText').text("Lying: " + amLying);
+      if(amLying){
+        $('#saveLie').show();
+        $('#submitTask').hide();
+      }
+       else{
+        $('#saveLie').hide();
+        $('#submitTask').show();
+      }
+    }
+    console.log(e.which);
 
     currentTile = clamp(currentTile, 1, 254);
     assignedTask.tiles[currentTile].draw();
@@ -453,13 +508,15 @@ function ThreeDViewRender(dx, dy) {
 }
 
 // adds the segment to the 3d world
-function ThreeDViewAddSegment(segId) {
+function ThreeDViewAddSegment(segId, partOfOriginial) {
+  
   segments.add(meshes[segId]);
 }
 
 // removes the segment from the 3d world and instantly rerenders
-function THREEDViewRemoveSegment(segId) {
+function THREEDViewRemoveSegment(segId, partOfOriginial) {
   segments.remove(meshes[segId]);
+
   ThreeDViewRender();
 }
 
@@ -487,7 +544,9 @@ function displayMeshForVolumeAndSegId(volume, segId, done) {
     var count = CHUNKS.length; // ensure that we have a response for each chunk
 
     CHUNKS.forEach(function(chunk) {
-      getMeshForVolumeXYZAndSegId(volume, chunk, segId, function (mesh) {
+
+
+        getMeshForVolumeXYZAndSegId(volume, chunk, segId, getColorForSegId(segId),function (mesh) {
         count--;
         if (mesh) {
           segmentMesh.add(mesh);
@@ -506,9 +565,52 @@ function displayMeshForVolumeAndSegId(volume, segId, done) {
   }
 }
 
+function getColorForSegId(segId){
+  if(amLying){
+      if(addedSegIds.indexOf(segId) >= 0 ){
+        return 'purple'; 
+      }else if(remSegIds.indexOf(segId) >= 0){
+        return 'red';
+      }
+      else{
+        return 'blue';
+      }
+  }
+  else{
+    return (isSeed(segId)) ? 'blue' : 'green';
+  }
+}
+
 // loads the VOA mesh for the given segment in the given chunk from the EyeWire data server into a Three JS mesh.
 // passes the mesh to the done handler as a single argument or passes false if there is no mesh for the given segment in the chunk
-function getMeshForVolumeXYZAndSegId(volume, chunk, segId, done) {
+// function getMeshForVolumeXYZAndSegId(volume, chunk, segId, done) {
+//   var meshUrl = 'http://cache.eyewire.org/volume/' + volume + '/chunk/0/'+ chunk[0] + '/' + chunk[1] + '/' + chunk[2] + '/mesh/' + segId;
+
+//   var req = new XMLHttpRequest();
+//   req.open("GET", meshUrl, true);
+//   req.responseType = "arraybuffer";
+
+//   req.onload = function (event) {
+//     var data = req.response;
+
+//     if (data) {
+//       var mesh = new THREE.Segment(
+//         new Float32Array(data),
+//         new THREE.MeshLambertMaterial({
+//           color: isSeed(segId) ? 'blue' : 'green'
+//         })
+//       );
+
+//       done(mesh);
+//     } else {
+//       done(false);
+//     }
+//   };
+
+//   req.send();
+// }
+
+function getMeshForVolumeXYZAndSegId(volume, chunk, segId, color,  done) {
   var meshUrl = 'http://cache.eyewire.org/volume/' + volume + '/chunk/0/'+ chunk[0] + '/' + chunk[1] + '/' + chunk[2] + '/mesh/' + segId;
 
   var req = new XMLHttpRequest();
@@ -522,7 +624,7 @@ function getMeshForVolumeXYZAndSegId(volume, chunk, segId, done) {
       var mesh = new THREE.Segment(
         new Float32Array(data),
         new THREE.MeshLambertMaterial({
-          color: isSeed(segId) ? 'blue' : 'green'
+          color: color
         })
       );
 
@@ -534,6 +636,7 @@ function getMeshForVolumeXYZAndSegId(volume, chunk, segId, done) {
 
   req.send();
 }
+
 
 
 
@@ -639,9 +742,13 @@ function playTask(task) {
         $('#results').html('score ' + res.score + ', accuracy ' + res.accuracy + ', trailblazer ' + res.trailblazer);
       });
     });
+
+    $('#saveLie').click();
   });
 }
 
+
+///TODO: move this into a button to start the task
 function start() {
   $.post('https://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
