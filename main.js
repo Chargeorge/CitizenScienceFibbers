@@ -3,9 +3,11 @@ var assignedTask = null;
 var channelContext = null;
 var bufferContext = null;
 var amLying = false;
+var preLying = true;
 var lieImPlaykng;
 var addedSegIds = [];
 var remSegIds = [];
+var consensusSegIds = [];
 
 // constants
 var CHUNK_SIZE = 128;
@@ -37,6 +39,10 @@ function setTask(task) {
 
 function isSeed(segId) {
   return assignedTask.seeds.indexOf(segId) !== -1;
+}
+
+function isConsensus(segId){
+  return consensusSegIds.indexOf(segId) !== -1;
 }
 
 function isSelected(segId) {
@@ -200,27 +206,45 @@ Tile.prototype.segIdForPosition = function(x, y) {
 // by default, this will toggle the highlighting of the segment in 2d view,
 // the visibility of the segment in 3d view, and the presence of the segment in the selected list (for submission)
 
+
 function selectSegId(segId) {
   console.log("adding more segids");
  
   if(amLying){
-    if(!isSeed(segId)){
+    if(isConsensus(segId) <= 0){
       console.log("adding added segment");
-      addedSegIds[addedSegIds.length] = segId;
+      addedSegIds.push( segId);
+
+      
     }else{
-       var lieIdx = remSegIds.indexOf(segId);
+      var lieIdx = remSegIds.indexOf(segId);
       remSegIds.splice(lieIdx,1);
     }
   }
   assignedTask.selected.push(segId);
   assignedTask.tiles[currentTile].draw();
   displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
-
+  if(!isLying) {setColor(segId, 0x00ff00);}
 }
 
-function deselectSegId(segId) {
+function deHighlightSegId(segId){
+  // addedSegIds.splice(segId,1);
+  if(remSegIds.indexOf(segId) ===-1){
+    remSegIds.push(segId);
+    changeColor(segId,0xff0000);
+  }
+  else{
+    var lieIdx = remSegIds.indexOf(segId);
+      
+    remSegIds.splice(lieIdx,1);
+    changeColor(segId,0x0000ff);
+  }
+   
+}
+
+function deselectSegId(segId) {  
   if( amLying){
-    if(isSeed(segId) ){
+    if(isConsensus(segId) ){
       remSegIds[remSegIds.length] = segId;
     }
     else{
@@ -247,21 +271,49 @@ function toggleSegId(segId) {
     return; // it a segment border or a seed
   }
   if(isSeed(segId)){
-    partOfOriginial = true;
-    console.log("in orig remove")
+    return;
+   
 
   }
   else{
-    partOfOriginial = false;
-
+    if(!amLying && !isConsensus(segId)){
+      partOfOriginial = false;
+    }
+    else{
+      partOfOriginial = true;
+    }
+    
     console.log("in orig add")
   }
 
-  if (isSelected(segId) || partOfOriginial) {
-    deselectSegId(segId);
+  if (isSelected(segId) ) {
+    if(!partOfOriginial){
+
+     deselectSegId(segId);
+    }
+    else{
+      deHighlightSegId(segId);
+    }
   } else {
     selectSegId(segId);
   }
+}
+
+function checkIds(){
+  var badSegsRemoved = [];
+  var segsRepaired = [];
+
+  var superFlousAdditions;
+  var extraDeletions;
+
+  // foreach(var i in remSegIds){
+  //   if(assignedTask.selected.indexOf(i)) >=0){
+  //     segsRepaired.add(i);
+  //   }
+
+  // }
+
+  // foreach(var i in assignedTask)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -349,14 +401,21 @@ function register2dInteractions() {
     if(e.which === 112){ //P key, test out lie mode
       amLying = !amLying;
       $('#modeText').text("Lying: " + amLying);
-      if(amLying){
-        $('#saveLie').show();
-        $('#submitTask').hide();
-      }
-       else{
-        $('#saveLie').hide();
-        $('#submitTask').show();
-      }
+      
+      // if(preLying && !amLying){
+      //   $('#beginLie').show;  
+      //   $('#saveLie').hide();
+      //   $('#submitTask').hide();
+      // }
+      // else if(amLying && !preLying){
+      //   $('#beginLie').hide;
+      //   $('#saveLie').show();
+      //   $('#submitTask').hide();
+      // }
+      //  else{
+      //   $('#saveLie').hide();
+      //   $('#submitTask').show();
+      // }
     }
     console.log(e.which);
 
@@ -638,8 +697,39 @@ function getMeshForVolumeXYZAndSegId(volume, chunk, segId, color,  done) {
 }
 
 
+function changeColor(segId, newColor){
+  meshes[segId].children.forEach(function(segment) {segment.material.color.set(newColor)});
 
+    ThreeDViewRender();
+    
+}
 
+function startLying(){
+  assignedTask.selected.forEach(function(segId){
+    consensusSegIds.push(segId);
+    amLying = true;
+    changeColor(segId, 0x0000ff)
+  });
+   $("#beginLie").hide();
+   $("#saveLie").show();
+   alert("Begin making the lie.");
+  //make everything blue
+}
+
+function startGuessing(){
+  remSegIds.forEach(function(segId){
+    var segPos = assignedTask.selected.indexOf(segId);
+    assignedTask.selected.splice(segPos, 1);
+    THREEDViewRemoveSegment(segId);
+  });
+  addedSegIds.forEach(function(segId){
+    changeColor(segId, 0x0000ff);
+  });
+  amLying = false;
+  $("#submitTask").show();
+  $("#saveLie").hide();
+  alert("Begin player guess.");
+}
 
 
 // start game
@@ -721,6 +811,20 @@ function loadTaskData(done) {
   ], done);
 }
 
+function calculateSuccessVals(){
+  var totalRemFound = 0;
+  var totalAddedFound = 0;
+  assignedTask.selected.forEach(function(segId){
+    if(addedSegIds.indexOf(segId) !== -1){totalAddedFound++;}
+  });
+  remSegIds.forEach(function(segId){
+    if(isSelected(segId)) {totalRemFound++;}
+  });
+  var totalTotal =  totalRemFound+totalAddedFound;
+  var totalTotalLies = remSegIds.length + addedSegIds.length;
+  alert("Player found " + totalTotal + "out of " + totalTotalLies);
+}
+
 function playTask(task) {
   setTask(task);
 
@@ -737,13 +841,15 @@ function playTask(task) {
     $('#3dContainer').show();
 
     $('#submitTask').click(function () {
+      calculateSuccessVals();
       var url = 'https://beta.eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
       $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
         $('#results').html('score ' + res.score + ', accuracy ' + res.accuracy + ', trailblazer ' + res.trailblazer);
       });
     });
 
-    $('#saveLie').click();
+    $('#saveLie').click(startGuessing);
+    $('#beginLie').click(startLying);
   });
 }
 
