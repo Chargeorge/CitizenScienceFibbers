@@ -4,109 +4,35 @@
 	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
 	<script src="THREESegment.js"></script>
-	<link rel="stylesheet" type="text/css" href="citizensciencefibbers.css">
-	<link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,300" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<div id="pageHeader">
-		<div id="nav">
-			<ul>
-				<a class="box-shadow-menu"></a>
-				<a id="homelogo" href="http://eyewire.org">
-					<img src="http://eyewire.org/static/images/eyewire_logo.png">
-				</a>
-				<li>
-					<a target="_blank" href="http://blog.eyewire.org/en/">Blog</a>
-				</li>
-				<li>
-					<a target="_blank" href="http://wiki.eyewire.org/en/">Wiki</a>
-				</li>
-				<li>
-					<a target="_blank" href="http://forum.eyewire.org">Forum</a></li>
-				<li>
-					<a target="_blank" href="http://blog.eyewire.org/en/about/">About</a>
-				</li>
-				<li>
-					<a target="_blank" href="http://wiki.eyewire.org/en/FAQ">FAQ</a>
-				</li>
-					<li id="challengeLink" style="display:none;">
-						<a target="_blank" class="active" onclick="Profile.show({&quot;active_tab&quot;:&quot;profChallenge&quot;});">Challenge</a>
-				</li>
-			</ul>
-					<script>
-						function hideMenu() {
-						document.getElementById("box-shadow-menu").innerHTML = " A";
-						}
-					</script>
-	<!--<div id="acc">
-			<ul>
-				<li onclick="Profile.show()" id="profileButton">
-					<a></a> 
-				</li>
-				<li onclick="omni.logoutUser();">
-					<a>Sign Out</a>
-				</li>
-			</ul>
-		</div> -->
-		</div>
-	</div>
-	<div id="content" style="padding-top: 50px;">
-		
-		<div class="gameBoardWrapper">
-			<div class="side left">
-					<div id="gameTitle" style="padding-left: 15px; padding-top: 5px; ">Eyewire Mini-Game </div>
+	<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
+	<div id="modeText" style="font-side: 32px;">Make the thing!</div>
+	<br/>
+	<div id="instructions" style="font-size: 24px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
+	<br/>
 
-				<div id="gameTextCube">
-					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Create A Cube </div>
-					<div id="instructions" style="padding-left: 15px;">Complete the branch as accurately as possible.</div>
-				</div>
-<!-- 				<div id="gameTextLie">
-					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Create A Lie </div>
-					<div id="instructions" style="padding-left: 15px;">Edit the cube to create an inacccurate branch. Player 2 will have to  select which one is The Lie. </div>
-				</div>
-				<div id="gameTextSolve">
-					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Find The Lie </div>
-					<div id="instructions" style="padding-left: 15px;">Select the cube that you think believe is most accurate.</div>
-				</div> -->
+	<div id="finishedLoading">
+		<button id="saveLie" style="display: none;">Save Lie</button>
+		<button id="beginLie" >Begin Lying</button><br/>
 
+		<!-- <button id="submitTask" style="display: none;">Submit</button><br/> -->
 
-					<div id="loadingText" style="padding-left: 15px; display: none;">Loading </div>
-				
-				<div class="threeD">
-					<div id="3dContainer" style="width: 400px; height: 400px; cursor: pointer;"></div>
-				</div>
-
-				<div id="finishedLoading" style="padding-left: 15px; float:right;">
-					<button id="submitCube" >Submit</button><br/>
-
-					<button id="saveLie" style="display: none;">Save Lie</button>
-
-					<button id="submitTask" style="display: none;">Submit</button><br/>
-
-					<div id="results"></div>
-				
-				</div>
-
-				<br/>
-					<div id="controls" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
-				<br/>
-
-			</div>
-
-			<div class="side right">
-				<div class="twoD">
-					<!-- <div style="font-size: 24px;"> 2D Canvas </div> -->
-					<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
-					<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
-				</div>
-			</div>
-
-		</div>
-
-
+		<div id="results"></div>
+		<div id="CurrentlyViewing"/>
 	</div>
 
+	<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+	<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
 
+	<div id="3dContainer" style="width: 500px; height: 500px;"></div>
+	<br>
+	<div id="GameControls" style="display: none;">
+		<div> <button id="Switch" value= "SwitchShowing"> Switch which cube I'm Showing </div>
+		<br> 
+
+		<div> <button id="ChooseA" value="Choose A" >I think A is right </button> <button id="ChooseB" value="ChooseB"> I think B is right!</button></div>
+	</div>
 </body>
 <script src="main.js"></script>
 </html>
