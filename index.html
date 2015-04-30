@@ -10,7 +10,7 @@
 <body>
 	<div id="pageHeader">
 		<div id="nav">
-<!-- 		<a id="menu icon" href="">
+		<!--<a id="menu icon" href="">
 				<img src="">
 			</a> -->
 			<a id="homelogo" href="http://eyewire.org">
@@ -34,8 +34,8 @@
 					<li id="challengeLink" style="display:none;">
 						<a target="_blank" class="active" onclick="Profile.show({&quot;active_tab&quot;:&quot;profChallenge&quot;});">Challenge</a>
 				</li>
-				</ul>
-<!-- 		<div id="acc">
+			</ul>
+	<!--<div id="acc">
 			<ul>
 				<li onclick="Profile.show()" id="profileButton">
 					<a></a> 
@@ -53,7 +53,7 @@
 		<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
 		<!-- <div id="modeText" style="font-side: 32px;"> Truth mode</div> -->
 		<br/>
-		<div id="instructions" style="font-size: 12px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
+			<div id="instructions" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
 		<br/>
 
 		<div id="finishedLoading">
@@ -66,38 +66,21 @@
 		</div>
 		
 
-		<div class="gameBoard" style="height: 500px; width: 500px;">
-			<div class="threeDPanel onscreen" id="3dContainer"  style=" height: 500px; display:block;">
-					<div id="threeD" class="threeD">
+		<div class="gameBoard" style="height: 500px;">
+			<div class="threeDPanel onscreen"  style=" height: 256px; display: inline-block;">
+					<div id="3dContainer" class="threeD">
 						<canvas id="bufferCanvas"></canvas>
 					</div>
 			</div>
 
-				<div class="twoDPanel onscreen" style="display:block;">
+				<div class="twoDPanel onscreen" style="height: 256px; display: inline-block;">
 					<div id="twoD" class="twoD">
-						<canvas id="channelCanvas" width="256" height="256"></canvas>
+						<canvas id="channelCanvas" width="256px" height="256px"></canvas>
 				</div>
 			</div>
 		</div>
 
-		<div id="gameTools">
-		<div title="Mute" class="menuButton" id="muteButton">
-			<div id="mute" class="muteButton"></div>
-		</div>
 
-		<div class="menuButton" id="helpButton" data-hasqtip="1" oldtitle="Help" title="">
-			<div class="helpButton"></div>
-		</div>
-
-		<div class="menuButton" id="settingsButton" data-hasqtip="0" oldtitle="Game Settings" title="">
-			<div class="settingsButton"></div>
-		</div>
-
-		<div title="Toggle Explore Mode (ctrl-e)" class="menuButton" id="exploreButton" style="display: block;">
-			<div class="exploreButton"></div>
-		</div>
-		<div title="Show Inspect Panel" id="inspectPanelButton" class="menuButton"></div>
-	</div>
 
 	</div>
 

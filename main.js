@@ -119,7 +119,7 @@ Tile.prototype.load = function (data, type, x, y, callback) {
 
 // draw this tile in the 2d view and update the plane position in the 3d view
 Tile.prototype.draw = function () {
-  plane.position.z = -0.5 + (currentTile / 256);
+  plane.position.z = -0.5 + (currentTile / 500);
   ThreeDViewRender();
 
   for (var i = 0; i < 4; i++) {
@@ -320,7 +320,7 @@ function checkIds(){
 /// loading 2d image data
 
 function loadTilesForAxis(axis, startingTile, callback) {
-  for (var i = 0; i < 256; i++) {
+  for (var i = 0; i < 500; i++) {
     assignedTask.tiles[i] = new Tile(i);
   }
 

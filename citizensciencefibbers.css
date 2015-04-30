@@ -1,7 +1,5 @@
 
-div{
-	display:block;
-}
+
 body {
 	position: relative;
 	min-height:100%;
@@ -28,6 +26,13 @@ body {
   padding: 0 10px;
   background-color: #2c5baa;
   font-family: 'Open Sans',sans-serif;
+}
+
+#nav a img {
+  vertical-align: top;
+}
+#homelogo img {
+  margin-top: 8px;
 }
 
 #nav {
