@@ -449,15 +449,12 @@ var renderer = new THREE.WebGLRenderer({
   alpha: false,
 });
 renderer.setDepthTest(false);
-
 scene = new THREE.Scene();
 setScene();
 var threeDContainer = $('#3dContainer');
 
 renderer.setSize(threeDContainer.width(), threeDContainer.height());
 threeDContainer.html(renderer.domElement);
-
-
 
 // THREEJS objects
 var scene, camera, light, segments, cube, center, plane;
@@ -510,7 +507,6 @@ function setScene() {
   cube.add(segments);
   scene.add(light);
   scene.add(camera);
-
 }
 
 $("#3dContainer canvas").mousemove(function (e) {
@@ -721,38 +717,20 @@ function startLying(){
 }
 
 function startGuessing(){
-  currentShowingTruth = false;
-  switchLie();
+  remSegIds.forEach(function(segId){
+    var segPos = assignedTask.selected.indexOf(segId);
+    assignedTask.selected.splice(segPos, 1);
+    THREEDViewRemoveSegment(segId);
+  });
+  addedSegIds.forEach(function(segId){
+    changeColor(segId, 0x0000ff);
+  });
+  amLying = false;
   $("#submitTask").show();
   $("#saveLie").hide();
   alert("Begin player guess.");
 }
 
-function switchLie(){
-  if(currentShowingTruth){
-    remSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-        assignedTask.selected.splice(segPos, 1);
-        THREEDViewRemoveSegment(segId);
-      });
-      addedSegIds.forEach(function(segId){
-        changeColor(segId, 0x0000ff);
-    });
-  } 
-  else{
-
-    addedSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-      assignedTask.selected.splice(segPos, 1);
-      THREEDViewRemoveSegment(segId);
-    });
-    remSegIds.forEach(function(segId){
-      assignedTask.push(segId)
-    });
-
-  }
-  currentShowingTruth = !currentShowingTruth;
-}
 
 // start game
 function waitForAll(asyncFunctions, done) {
@@ -878,6 +856,6 @@ function playTask(task) {
 
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('http://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
+  $.post('https://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
