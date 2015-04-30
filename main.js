@@ -8,7 +8,9 @@ var lieImPlaykng;
 var addedSegIds = [];
 var remSegIds = [];
 var consensusSegIds = [];
-
+var texts = ["Viewing A", "Viewing B"];
+var textIndex;
+var correctIndex;
 // constants
 var CHUNK_SIZE = 128;
 
@@ -224,7 +226,7 @@ function selectSegId(segId) {
   assignedTask.selected.push(segId);
   assignedTask.tiles[currentTile].draw();
   displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
-  if(!isLying) {setColor(segId, 0x00ff00);}
+  if(!amLying) {changeColor(segId, 0x00ff00);}
 }
 
 function deHighlightSegId(segId){
@@ -400,7 +402,7 @@ function register2dInteractions() {
 
     if(e.which === 112){ //P key, test out lie mode
       amLying = !amLying;
-      $('#modeText').text("Lying: " + amLying);
+      // $('#modeText').text("Lying: " + amLying);
       
       // if(preLying && !amLying){
       //   $('#beginLie').show;  
@@ -574,6 +576,8 @@ function ThreeDViewRender(dx, dy) {
 function ThreeDViewAddSegment(segId, partOfOriginial) {
   
   segments.add(meshes[segId]);
+
+  ThreeDViewRender();
 }
 
 // removes the segment from the 3d world and instantly rerenders
@@ -722,9 +726,27 @@ function startLying(){
 
 function startGuessing(){
   currentShowingTruth = false;
-  switchLie();
+  // switchLie();
+
+  //Choose a random position to start at
+  textIndex = Math.floor((Math.random() * 2));
+
+  $("#modeText").text(texts[textIndex]);
+  correctIndex = !textIndex;
+  remSegIds.forEach(function(segId){
+      var segPos = assignedTask.selected.indexOf(segId);
+        changeColor(segId, 0x0000ff);
+        assignedTask.selected.splice(segPos, 1);
+        THREEDViewRemoveSegment(segId);
+      });
+      addedSegIds.forEach(function(segId){
+        changeColor(segId, 0x0000ff);
+    });
   $("#submitTask").show();
   $("#saveLie").hide();
+  $("#GameControls").show();
+  var randomIndex2 = Math.floor((Math.random() * 2));
+  if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
 }
 
@@ -736,7 +758,8 @@ function switchLie(){
         THREEDViewRemoveSegment(segId);
       });
       addedSegIds.forEach(function(segId){
-        changeColor(segId, 0x0000ff);
+        assignedTask.selected.push(segId);
+        ThreeDViewAddSegment(segId);
     });
   } 
   else{
@@ -747,11 +770,16 @@ function switchLie(){
       THREEDViewRemoveSegment(segId);
     });
     remSegIds.forEach(function(segId){
-      assignedTask.push(segId)
+      assignedTask.selected.push(segId)
+      ThreeDViewAddSegment(segId);
     });
 
   }
+  ThreeDViewRender();
   currentShowingTruth = !currentShowingTruth;
+  if(textIndex == 0) { textIndex = 1;}
+  else{textIndex = 0;}
+  $("#modeText").text(texts[textIndex]);
 }
 
 // start game
@@ -872,9 +900,21 @@ function playTask(task) {
 
     $('#saveLie').click(startGuessing);
     $('#beginLie').click(startLying);
+    $('#Switch').click(switchLie);   
+
+    $('#ChooseA').click(function(){guessIndex(0);});
+    $('#ChooseB').click(function(){guessIndex(1);});
   });
 }
 
+function guessIndex(index){
+  if(correctIndex == index){
+    alert("YOU GOT IT RIGHT");
+  }
+  else{
+    alert("You Got it WRONG");
+  }
+}
 
 ///TODO: move this into a button to start the task
 function start() {
