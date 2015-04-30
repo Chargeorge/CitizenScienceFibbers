@@ -33,6 +33,11 @@
 						<a target="_blank" class="active" onclick="Profile.show({&quot;active_tab&quot;:&quot;profChallenge&quot;});">Challenge</a>
 				</li>
 			</ul>
+					<script>
+						function hideMenu() {
+						document.getElementById("box-shadow-menu").innerHTML = " A";
+						}
+					</script>
 	<!--<div id="acc">
 			<ul>
 				<li onclick="Profile.show()" id="profileButton">
@@ -66,14 +71,13 @@
 
 
 					<div id="loadingText" style="padding-left: 15px; display: none;">Loading </div>
+				
+				<div class="threeD">
+					<div id="3dContainer" style="width: 400px; height: 400px; cursor: pointer;"></div>
+				</div>
 
-				<div id="finishedLoading" style="padding-left: 15px;">
-					<button id="submitCube" onclick="advanceToLie()">Submit</button><br/>
-					<script>
-						function advanceToLie() {
-						document.getElementById("gameControls").innerHTML = "Advance!";
-						}
-					</script>
+				<div id="finishedLoading" style="padding-left: 15px; float:right;">
+					<button id="submitCube" >Submit</button><br/>
 
 					<button id="saveLie" style="display: none;">Save Lie</button>
 
@@ -81,10 +85,6 @@
 
 					<div id="results"></div>
 				
-				</div>
-				
-				<div class="threeD">
-					<div id="3dContainer" style="width: 500px; height: 500px; cursor: pointer;"></div>
 				</div>
 
 				<br/>
