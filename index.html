@@ -10,13 +10,11 @@
 <body>
 	<div id="pageHeader">
 		<div id="nav">
-		<!--<a id="menu icon" href="">
-				<img src="">
-			</a> -->
-			<a id="homelogo" href="http://eyewire.org">
-				<img src="http://eyewire.org/static/images/eyewire_logo.png">
-			</a>
 			<ul>
+				<a class="box-shadow-menu"></a>
+				<a id="homelogo" href="http://eyewire.org">
+					<img src="http://eyewire.org/static/images/eyewire_logo.png">
+				</a>
 				<li>
 					<a target="_blank" href="http://blog.eyewire.org/en/">Blog</a>
 				</li>
@@ -48,38 +46,50 @@
 		</div>
 	</div>
 	<div id="content" style="padding-top: 50px;">
-		<div id="gameTitle">Eyewire Mini-Game </div>
-		<div id="stageName" style="font-size: 30px;">Create A Cube </div>
-		<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
-		<!-- <div id="modeText" style="font-side: 32px;"> Truth mode</div> -->
-		<br/>
-			<div id="instructions" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
-		<br/>
-
-		<div id="finishedLoading">
-			<button id="saveLie" style="display: none;">Save Lie</button>
-			<button id="beginLie" >Begin Lying</button><br/>
-
-			<button id="submitTask" style="display: none;">Submit</button><br/>
-
-			<div id="results"></div>
-		</div>
 		
+		<div class="gameBoardWrapper">
+			<div class="side left">
+				<div id="gameControls">
+					<div id="gameTitle" style="padding-left: 15px; padding-top: 5px; ">Eyewire Mini-Game </div>
+					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Create A Cube </div>
+					<div id="instructions" style="padding-left: 15px;">Complete the branch as accurately as possible.</div>
+					<div id="loadingText" style="padding-left: 15px; display: none;">Loading </div>
 
-		<div class="gameBoard" style="height: 500px;">
-			<div class="threeDPanel onscreen"  style=" height: 256px; display: inline-block;">
-					<div id="3dContainer" class="threeD">
-						<canvas id="bufferCanvas"></canvas>
+					<div id="finishedLoading" style="padding-left: 15px;">
+						<button id="submitCube" onclick="advanceToLie()">Submit</button><br/>
+						<script>
+							function advanceToLie() {
+							document.getElementById("gameControls").innerHTML = "Advance!";
+							}
+						</script>
+
+						<button id="saveLie" style="display: none;">Save Lie</button>
+
+						<button id="submitTask" style="display: none;">Submit</button><br/>
+
+						<div id="results"></div>
 					</div>
+				</div>
+				
+				<div class="threeD">
+					<div id="3dContainer" style="width: 500px; height: 500px; cursor: pointer;"></div>
+				</div>
+
+				<br/>
+					<div id="controls" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
+				<br/>
+
 			</div>
 
-				<div class="twoDPanel onscreen" style="height: 256px; display: inline-block;">
-					<div id="twoD" class="twoD">
-						<canvas id="channelCanvas" width="256px" height="256px"></canvas>
+			<div class="side right">
+				<div class="twoD">
+					<!-- <div style="font-size: 24px;"> 2D Canvas </div> -->
+					<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+					<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
 				</div>
 			</div>
-		</div>
 
+		</div>
 
 
 	</div>

@@ -12,7 +12,6 @@ body {
 
 }
 
-
 #pageHeader {
   position: fixed;
   top: 0;
@@ -28,6 +27,25 @@ body {
   font-family: 'Open Sans',sans-serif;
 }
 
+.box-shadow-menu {
+  position: relative;
+  padding-left: 2.5em;
+}
+.box-shadow-menu:before {
+  content: "";
+  margin-top: 10px;
+  vertical-align: top;
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  width: 1.7em;
+  height: 0.15em;
+  background: white;
+  box-shadow: 
+    0 0.40em 0 0 white,
+    0 0.8em 0 0 white;
+}
+
 #nav a img {
   vertical-align: top;
 }
@@ -36,6 +54,7 @@ body {
 }
 
 #nav {
+	padding-left: 15px;
   float: left;
 }
 
@@ -84,79 +103,49 @@ a {
   float: right;
 }
 
+// ================================================================================
+// Basic Body Framework
+// ================================================================================
 
-.gameBoard {
-  position: absolute;
+.side {
+	height: 50px;
+	background: #000000;
+}
+
+.gameBoardWrapper {
+  /*position: absolute;*/
   width: 100%;
   height: 100%;
-  left:0;
-  -moz-transition: top .5s ease-in-out;
-  -webkit-transition: top .5s ease-in-out;
-  transition: top .5s ease-in-out;
+  /*left:0;*/
 }
 
-.threeDPanel.onscreen {
-  left: -25%;
+.side.left{
+  	float: left;
+  	width:50%;
 }
 
-.threeDPanel {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  overflow: hidden;
-  background-repeat: no-repeat;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  transition: left .5s ease-in-out;
-  -moz-transition: left .5s ease-in-out;
-  -webkit-transition: left .5s ease-in-out;
+.side.right{
+	float: right;
+  	width: 50%;
 }
+
+// ================================================================================
+
+
 .threeD {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  font-size: 9pt;
-  color: #fff;
-  text-align: center;
-  vertical-align: middle;
   cursor: pointer;
 }
 
-.twoDPanel.onscreen {
-  left: 50%;
-}
-
-.twoDPanel {
-  position: absolute;
-  left: 100%;
-  width: 50%;
-  height: 100%;
-  overflow: hidden;
-/*  border-left: 1px dashed #888;*/
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  -moz-transition: left .5s ease-in-out;
-  -webkit-transition: left .5s ease-in-out;
-  transition: left .5s ease-in-out;
-}
 
 .twoD {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  font-size: 9pt;
-  color: #fff;
-  text-align: center;
-  vertical-align: middle;
   cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAfCAYAAAAfrhY5AAAAGXRF…SUm4s98DHoDeWoHe13JEX7K4W5JZaotxSf2/klvpHgAEA/beulxpK/qIAAAAASUVORK5CYII=") 15 15,crosshair!important;
 }
+
+/*canvas {
+	width: 96%;
+	border-style: solid;
+    border-color: red;
+}*/
 
 /*.menuButton {
   float: right;
