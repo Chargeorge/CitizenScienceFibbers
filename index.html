@@ -48,7 +48,6 @@
 				</li>
 			</ul>
 		</div> -->
-		</div>
 	</div>
 	<div id="content" style="padding-top: 50px;">
 		
@@ -71,19 +70,21 @@
 
 
 					<div id="loadingText" style="padding-left: 15px; display: none;">Loading </div>
+					<div id="modeText" style="font-side: 32px;">Make the thing!</div>
 				
 				<div class="threeD">
 					<div id="3dContainer" style="width: 400px; height: 400px; cursor: pointer;"></div>
 				</div>
 
 				<div id="finishedLoading" style="padding-left: 15px; float:right;">
-					<button id="submitCube" >Submit</button><br/>
 
 					<button id="saveLie" style="display: none;">Save Lie</button>
+					<button id="beginLie" >Begin Lying</button><br/>
 
 					<button id="submitTask" style="display: none;">Submit</button><br/>
 
 					<div id="results"></div>
+					<div id="CurrentlyViewing"/>
 				
 				</div>
 
@@ -103,8 +104,14 @@
 
 		</div>
 
+	<div id="GameControls" style="display: none;">
+		<div> <button id="Switch" value= "SwitchShowing"> Switch which cube I'm Showing </div>
+		<br> 
 
+		<div> <button id="ChooseA" value="Choose A" >I think A is right </button> <button id="ChooseB" value="ChooseB"> I think B is right!</button></div>
 	</div>
+
+</div>
 
 
 </body>
