@@ -49,26 +49,38 @@
 		
 		<div class="gameBoardWrapper">
 			<div class="side left">
-				<div id="gameControls">
 					<div id="gameTitle" style="padding-left: 15px; padding-top: 5px; ">Eyewire Mini-Game </div>
+
+				<div id="gameTextCube">
 					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Create A Cube </div>
 					<div id="instructions" style="padding-left: 15px;">Complete the branch as accurately as possible.</div>
+				</div>
+<!-- 				<div id="gameTextLie">
+					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Create A Lie </div>
+					<div id="instructions" style="padding-left: 15px;">Edit the cube to create an inacccurate branch. Player 2 will have to  select which one is The Lie. </div>
+				</div>
+				<div id="gameTextSolve">
+					<div id="stageName" style="padding-left: 15px; font-size: 30px;">Find The Lie </div>
+					<div id="instructions" style="padding-left: 15px;">Select the cube that you think believe is most accurate.</div>
+				</div> -->
+
+
 					<div id="loadingText" style="padding-left: 15px; display: none;">Loading </div>
 
-					<div id="finishedLoading" style="padding-left: 15px;">
-						<button id="submitCube" onclick="advanceToLie()">Submit</button><br/>
-						<script>
-							function advanceToLie() {
-							document.getElementById("gameControls").innerHTML = "Advance!";
-							}
-						</script>
+				<div id="finishedLoading" style="padding-left: 15px;">
+					<button id="submitCube" onclick="advanceToLie()">Submit</button><br/>
+					<script>
+						function advanceToLie() {
+						document.getElementById("gameControls").innerHTML = "Advance!";
+						}
+					</script>
 
-						<button id="saveLie" style="display: none;">Save Lie</button>
+					<button id="saveLie" style="display: none;">Save Lie</button>
 
-						<button id="submitTask" style="display: none;">Submit</button><br/>
+					<button id="submitTask" style="display: none;">Submit</button><br/>
 
-						<div id="results"></div>
-					</div>
+					<div id="results"></div>
+				
 				</div>
 				
 				<div class="threeD">
