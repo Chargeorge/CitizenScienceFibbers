@@ -744,7 +744,7 @@ function startGuessing(){
     });
   $("#submitTask").show();
   $("#saveLie").hide();
-  $("#GameControls").show();
+  $("#gameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
@@ -921,3 +921,9 @@ function start() {
   $.post('http://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
+
+///////////////////////////////////////////////////////////////////////////////
+    $(".box-shadow-menu").click(function(){
+       $("#list").toggle();
+    });
+
