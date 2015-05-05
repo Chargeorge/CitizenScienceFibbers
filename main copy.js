@@ -513,6 +513,24 @@ function setScene() {
   scene.add(light);
   scene.add(camera);
 
+
+  var center2 = new THREE.Vector3(3,0,0);
+
+  camera.lookAt(1.5, 0,0);
+  var mesh2 = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshNormalMaterial() );
+  var cube2 = new THREE.BoxHelper( mesh );
+  cube2.material.color.set( 0x555555 );
+
+
+  viewport2 = new THREE.Object3D();
+  segments2 = new THREE.Object3D();
+
+  var planeGeo2 = new THREE.PlaneBufferGeometry( 1, 1, 1 );
+  var plane2 = new THREE.Mesh(planeGeo2, material);
+
+  cube2.position = THREE.Vector3(3,0,0);
+
+  scene.add(cube2);
 }
 
 $("#3dContainer canvas").mousemove(function (e) {

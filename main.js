@@ -916,9 +916,20 @@ function guessIndex(index){
   }
 }
 
+function getJSON(){
+  var objs = {
+    "addedSegIds" : addedSegIds,
+    "remSegIds" : remSegIds,
+    "allSegIds" : assignedTask.selected,
+    "taskId" : taskId,
+    "comment" : "",
+    
+  }
+}
+
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('http://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
+  $.post('http://www.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
 
