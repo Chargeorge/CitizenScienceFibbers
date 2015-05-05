@@ -1,3 +1,4 @@
+
 // globals
 var assignedTask = null;
 var channelContext = null;
