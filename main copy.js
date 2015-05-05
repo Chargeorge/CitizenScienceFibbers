@@ -513,6 +513,24 @@ function setScene() {
   scene.add(light);
   scene.add(camera);
 
+
+  var center2 = new THREE.Vector3(3,0,0);
+
+  camera.lookAt(1.5, 0,0);
+  var mesh2 = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshNormalMaterial() );
+  var cube2 = new THREE.BoxHelper( mesh );
+  cube2.material.color.set( 0x555555 );
+
+
+  viewport2 = new THREE.Object3D();
+  segments2 = new THREE.Object3D();
+
+  var planeGeo2 = new THREE.PlaneBufferGeometry( 1, 1, 1 );
+  var plane2 = new THREE.Mesh(planeGeo2, material);
+
+  cube2.position = THREE.Vector3(3,0,0);
+
+  scene.add(cube2);
 }
 
 $("#3dContainer canvas").mousemove(function (e) {
@@ -744,7 +762,7 @@ function startGuessing(){
     });
   $("#submitTask").show();
   $("#saveLie").hide();
-  $("#gameControls").show();
+  $("#GameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
@@ -916,25 +934,8 @@ function guessIndex(index){
   }
 }
 
-function getJSON(){
-  var objs = {
-    "addedSegIds" : addedSegIds,
-    "remSegIds" : remSegIds,
-    "allSegIds" : assignedTask.selected,
-    "taskId" : taskId,
-    "comment" : "",
-    
-  }
-}
-
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('http://www.eyewire.org/2.0/tasks/testassign').done(playTask);
+  $.post('http://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
-
-///////////////////////////////////////////////////////////////////////////////
-    $(".box-shadow-menu").click(function(){
-       $("#list").toggle();
-    });
-

@@ -8,9 +8,7 @@ var lieImPlaykng;
 var addedSegIds = [];
 var remSegIds = [];
 var consensusSegIds = [];
-var texts = ["Viewing A", "Viewing B"];
-var textIndex;
-var correctIndex;
+
 // constants
 var CHUNK_SIZE = 128;
 
@@ -121,7 +119,7 @@ Tile.prototype.load = function (data, type, x, y, callback) {
 
 // draw this tile in the 2d view and update the plane position in the 3d view
 Tile.prototype.draw = function () {
-  plane.position.z = -0.5 + (currentTile / 500);
+  plane.position.z = -0.5 + (currentTile / 256);
   ThreeDViewRender();
 
   for (var i = 0; i < 4; i++) {
@@ -226,7 +224,7 @@ function selectSegId(segId) {
   assignedTask.selected.push(segId);
   assignedTask.tiles[currentTile].draw();
   displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
-  if(!amLying) {changeColor(segId, 0x00ff00);}
+  if(!isLying) {setColor(segId, 0x00ff00);}
 }
 
 function deHighlightSegId(segId){
@@ -322,7 +320,7 @@ function checkIds(){
 /// loading 2d image data
 
 function loadTilesForAxis(axis, startingTile, callback) {
-  for (var i = 0; i < 500; i++) {
+  for (var i = 0; i < 256; i++) {
     assignedTask.tiles[i] = new Tile(i);
   }
 
@@ -402,7 +400,7 @@ function register2dInteractions() {
 
     if(e.which === 112){ //P key, test out lie mode
       amLying = !amLying;
-      // $('#modeText').text("Lying: " + amLying);
+      $('#modeText').text("Lying: " + amLying);
       
       // if(preLying && !amLying){
       //   $('#beginLie').show;  
@@ -451,15 +449,12 @@ var renderer = new THREE.WebGLRenderer({
   alpha: false,
 });
 renderer.setDepthTest(false);
-
 scene = new THREE.Scene();
 setScene();
 var threeDContainer = $('#3dContainer');
 
 renderer.setSize(threeDContainer.width(), threeDContainer.height());
 threeDContainer.html(renderer.domElement);
-
-
 
 // THREEJS objects
 var scene, camera, light, segments, cube, center, plane;
@@ -512,7 +507,6 @@ function setScene() {
   cube.add(segments);
   scene.add(light);
   scene.add(camera);
-
 }
 
 $("#3dContainer canvas").mousemove(function (e) {
@@ -576,8 +570,6 @@ function ThreeDViewRender(dx, dy) {
 function ThreeDViewAddSegment(segId, partOfOriginial) {
   
   segments.add(meshes[segId]);
-
-  ThreeDViewRender();
 }
 
 // removes the segment from the 3d world and instantly rerenders
@@ -725,62 +717,20 @@ function startLying(){
 }
 
 function startGuessing(){
-  currentShowingTruth = false;
-  // switchLie();
-
-  //Choose a random position to start at
-  textIndex = Math.floor((Math.random() * 2));
-
-  $("#modeText").text(texts[textIndex]);
-  correctIndex = !textIndex;
   remSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-        changeColor(segId, 0x0000ff);
-        assignedTask.selected.splice(segPos, 1);
-        THREEDViewRemoveSegment(segId);
-      });
-      addedSegIds.forEach(function(segId){
-        changeColor(segId, 0x0000ff);
-    });
+    var segPos = assignedTask.selected.indexOf(segId);
+    assignedTask.selected.splice(segPos, 1);
+    THREEDViewRemoveSegment(segId);
+  });
+  addedSegIds.forEach(function(segId){
+    changeColor(segId, 0x0000ff);
+  });
+  amLying = false;
   $("#submitTask").show();
   $("#saveLie").hide();
-  $("#gameControls").show();
-  var randomIndex2 = Math.floor((Math.random() * 2));
-  if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
 }
 
-function switchLie(){
-  if(currentShowingTruth){
-    remSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-        assignedTask.selected.splice(segPos, 1);
-        THREEDViewRemoveSegment(segId);
-      });
-      addedSegIds.forEach(function(segId){
-        assignedTask.selected.push(segId);
-        ThreeDViewAddSegment(segId);
-    });
-  } 
-  else{
-
-    addedSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-      assignedTask.selected.splice(segPos, 1);
-      THREEDViewRemoveSegment(segId);
-    });
-    remSegIds.forEach(function(segId){
-      assignedTask.selected.push(segId)
-      ThreeDViewAddSegment(segId);
-    });
-
-  }
-  ThreeDViewRender();
-  currentShowingTruth = !currentShowingTruth;
-  if(textIndex == 0) { textIndex = 1;}
-  else{textIndex = 0;}
-  $("#modeText").text(texts[textIndex]);
-}
 
 // start game
 function waitForAll(asyncFunctions, done) {
@@ -900,41 +850,12 @@ function playTask(task) {
 
     $('#saveLie').click(startGuessing);
     $('#beginLie').click(startLying);
-    $('#Switch').click(switchLie);   
-
-    $('#ChooseA').click(function(){guessIndex(0);});
-    $('#ChooseB').click(function(){guessIndex(1);});
   });
 }
 
-function guessIndex(index){
-  if(correctIndex == index){
-    alert("YOU GOT IT RIGHT");
-  }
-  else{
-    alert("You Got it WRONG");
-  }
-}
-
-function getJSON(){
-  var objs = {
-    "addedSegIds" : addedSegIds,
-    "remSegIds" : remSegIds,
-    "allSegIds" : assignedTask.selected,
-    "taskId" : taskId,
-    "comment" : "",
-    
-  }
-}
 
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('http://www.eyewire.org/2.0/tasks/testassign').done(playTask);
+  $.post('https://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
-
-///////////////////////////////////////////////////////////////////////////////
-    $(".box-shadow-menu").click(function(){
-       $("#list").toggle();
-    });
-

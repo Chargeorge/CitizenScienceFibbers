@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
+	<script src="THREESegment.js"></script>
+</head>
+<body>
+	<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
+	<div id="modeText" style="font-side: 32px;">Make the thing!</div>
+	<br/>
+	<div id="instructions" style="font-size: 24px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
+	<br/>
+
+	<div id="finishedLoading">
+		<button id="saveLie" style="display: none;">Save Lie</button>
+		<button id="beginLie" >Begin Lying</button><br/>
+
+		<!-- <button id="submitTask" style="display: none;">Submit</button><br/> -->
+
+		<div id="results"></div>
+		<div id="CurrentlyViewing"/>
+	</div>
+
+	<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+	<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
+
+	<div id="3dContainer" style="width: 500px; height: 500px;"></div>
+	<br>
+	<div id="GameControls" style="display: none;">
+		<div> <button id="Switch" value= "SwitchShowing"> Switch which cube I'm Showing </div>
+		<br> 
+
+		<div> <button id="ChooseA" value="Choose A" >I think A is right </button> <button id="ChooseB" value="ChooseB"> I think B is right!</button></div>
+	</div>
+</body>
+<script src="main.js"></script>
+</html>
