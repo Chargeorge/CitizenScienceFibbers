@@ -11,6 +11,8 @@ var consensusSegIds = [];
 var texts = ["Viewing A", "Viewing B"];
 var textIndex;
 var correctIndex;
+var accuracyDataOrig = 5;
+var accuracyDataNew = 6;
 // constants
 var CHUNK_SIZE = 128;
 
@@ -718,9 +720,15 @@ function startLying(){
     amLying = true;
     changeColor(segId, 0x0000ff)
   });
+
    $("#beginLie").hide();
    $("#saveLie").show();
    alert("Begin making the lie.");
+   var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
+      $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
+        
+        accuracyDataOrig =  res.accuracy;
+      });
   //make everything blue
 }
 
@@ -748,6 +756,13 @@ function startGuessing(){
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
+
+     var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
+      $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
+        accuracyDataNew =  res.accuracy;
+        $("#grabstuff").text(getJSON());
+
+      });
 }
 
 function switchLie(){
@@ -892,7 +907,7 @@ function playTask(task) {
 
     $('#submitTask').click(function () {
       calculateSuccessVals();
-      var url = 'https://beta.eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
+      var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
       $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
         $('#results').html('score ' + res.score + ', accuracy ' + res.accuracy + ', trailblazer ' + res.trailblazer);
       });
@@ -921,15 +936,17 @@ function getJSON(){
     "addedSegIds" : addedSegIds,
     "remSegIds" : remSegIds,
     "allSegIds" : assignedTask.selected,
-    "taskId" : taskId,
+    "taskId" : assignedTask.id ,
     "comment" : "",
-    
+    "lieAccuracy" : accuracyDataNew,
+    "origAccuracy": accuracyDataOrig
   }
+  return JSON.stringify(objs);
 }
 
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('http://www.eyewire.org/2.0/tasks/testassign').done(playTask);
+  $.post('https://eyewire.org/2.0/tasks/testassign').done(playTask);
 }
 start();
 
