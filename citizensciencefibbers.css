@@ -154,6 +154,11 @@ a {
 
 .twoD {
   cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAfCAYAAAAfrhY5AAAAGXRF…SUm4s98DHoDeWoHe13JEX7K4W5JZaotxSf2/klvpHgAEA/beulxpK/qIAAAAASUVORK5CYII=") 15 15,crosshair!important;
+  margin:auto;
+      height:300px;
+    width:300px;
+    padding-top: 110px;
+
 }
 
 #submitCube {
