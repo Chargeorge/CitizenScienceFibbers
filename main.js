@@ -123,7 +123,7 @@ Tile.prototype.load = function (data, type, x, y, callback) {
 
 // draw this tile in the 2d view and update the plane position in the 3d view
 Tile.prototype.draw = function () {
-  plane.position.z = -0.5 + (currentTile / 500);
+  plane.position.z = -0.5 + (currentTile/256);
   ThreeDViewRender();
 
   for (var i = 0; i < 4; i++) {
@@ -722,6 +722,8 @@ function startLying(){
   });
 
    $("#beginLie").hide();
+   $("#beginSolve").hide();
+   $("#howTo").hide();
    $("#saveLie").show();
    alert("Begin making the lie.");
    var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
@@ -951,7 +953,11 @@ function start() {
 start();
 
 ///////////////////////////////////////////////////////////////////////////////
+    $(document).ready(function() {
+    $("#list").hide();
+});
     $(".box-shadow-menu").click(function(){
        $("#list").toggle();
     });
+
 

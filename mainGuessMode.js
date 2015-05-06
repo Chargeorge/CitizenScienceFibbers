@@ -10,6 +10,12 @@ var addedSegIds = [];
 var remSegIds = [];
 var consensusSegIds = [];
 
+var JSONGuesses = [
+  '{"addedSegIds":[2622],"remSegIds":[565,2811],"allSegIds":[2254,2651,2895,2622],"taskId":753588,"comment":"","lieAccuracy":0,"origAccuracy":0}'
+
+]
+
+
 // constants
 var CHUNK_SIZE = 128;
 
@@ -142,52 +148,7 @@ Tile.prototype.draw = function () {
   }
 };
 
-// highlight the seeds and selected segments in the tile 2d view
-function highlight(targetData, segData) {
-  var copy = bufferContext.createImageData(CHUNK_SIZE, CHUNK_SIZE);
-  copy.data.set(targetData.data);
 
-  var copyPixels = copy.data;
-  var segPixels = segData.data;
-
-  var selected = assignedTask.selected;
-
-  var selectedColors = selected.map(segIdToRGB);
-  var seedColors = assignedTask.seeds.map(segIdToRGB);
-
-  function getColor(buffer, startIndex) {
-    return [buffer[startIndex], buffer[startIndex+1], buffer[startIndex+2]];
-  }
-
-  function setColor(buffer, startIndex, rgb) {
-    overlay = [rgb[0] * 0.5, rgb[1] * 0.5, rgb[2] * 0.5];
-
-    for (i = 0; i < 3; i++) {
-      buffer[startIndex + i] = overlay[i] + buffer[startIndex + i] * 0.5;
-    }
-  }
-
-  var seedColor = [0, 0, 255];
-  var selectedColor = [0, 255, 0];
-
-  for (var j = 0; j < segPixels.length; j += 4) {
-    var rgb = getColor(segPixels, j);
-
-    for (var k = 0; k < seedColors.length; k += 1) {
-      if (rgbEqual(seedColors[k], rgb)) {
-        setColor(copyPixels, j, seedColor);
-      }
-    }
-
-    for (var k = 0; k < selectedColors.length; k += 1) {
-      if (rgbEqual(selectedColors[k], rgb)) {
-        setColor(copyPixels, j, selectedColor);
-      }
-    }
-  }
-
-  return copy;
-}
 
 // returns the the segment id located at the given x y position of this tile
 Tile.prototype.segIdForPosition = function(x, y) {
@@ -207,99 +168,6 @@ Tile.prototype.segIdForPosition = function(x, y) {
 // by default, this will toggle the highlighting of the segment in 2d view,
 // the visibility of the segment in 3d view, and the presence of the segment in the selected list (for submission)
 
-
-function selectSegId(segId) {
-  console.log("adding more segids");
- 
-  if(amLying){
-    if(isConsensus(segId) <= 0){
-      console.log("adding added segment");
-      addedSegIds.push( segId);
-
-      
-    }else{
-      var lieIdx = remSegIds.indexOf(segId);
-      remSegIds.splice(lieIdx,1);
-    }
-  }
-  assignedTask.selected.push(segId);
-  assignedTask.tiles[currentTile].draw();
-  displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
-  if(!isLying) {setColor(segId, 0x00ff00);}
-}
-
-function deHighlightSegId(segId){
-  // addedSegIds.splice(segId,1);
-  if(remSegIds.indexOf(segId) ===-1){
-    remSegIds.push(segId);
-    changeColor(segId,0xff0000);
-  }
-  else{
-    var lieIdx = remSegIds.indexOf(segId);
-      
-    remSegIds.splice(lieIdx,1);
-    changeColor(segId,0x0000ff);
-  }
-   
-}
-
-function deselectSegId(segId) {  
-  if( amLying){
-    if(isConsensus(segId) ){
-      remSegIds[remSegIds.length] = segId;
-    }
-    else{
-      var lieIdx = addedSegIds.indexOf(segId);
-      addedSegIds.splice(lieIdx,1);
-
-      var selectedIdx = assignedTask.selected.indexOf(segId);
-      assignedTask.selected.splice(selectedIdx, 1);
- 
-    }
-  }
-  else{
-    var selectedIdx = assignedTask.selected.indexOf(segId);
-    assignedTask.selected.splice(selectedIdx, 1);
-  }
-
-  assignedTask.tiles[currentTile].draw();
-  THREEDViewRemoveSegment(segId);
-}
-
-function toggleSegId(segId) {
-  var partOfOriginial;
-  if (segId === 0 ) {
-    return; // it a segment border or a seed
-  }
-  if(isSeed(segId)){
-    return;
-   
-
-  }
-  else{
-    if(!amLying && !isConsensus(segId)){
-      partOfOriginial = false;
-    }
-    else{
-      partOfOriginial = true;
-    }
-    
-    console.log("in orig add")
-  }
-
-  if (isSelected(segId) ) {
-    if(!partOfOriginial){
-
-     deselectSegId(segId);
-    }
-    else{
-      deHighlightSegId(segId);
-    }
-  } else {
-    selectSegId(segId);
-  }
-}
-
 function checkIds(){
   var badSegsRemoved = [];
   var segsRepaired = [];
@@ -317,148 +185,64 @@ function checkIds(){
   // foreach(var i in assignedTask)
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// loading 2d image data
-
-function loadTilesForAxis(axis, startingTile, callback) {
-  for (var i = 0; i < 256; i++) {
-    assignedTask.tiles[i] = new Tile(i);
-  }
-
-  for (var i = 0; i < 4; i++) {
-    var chunk = CHUNKS[i];
-    getStartingTiles(startingTile, 1, assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getStartingTiles(startingTile, 1, assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  }
-
-  for (var i = 0; i < 4; i++) {
-    var chunk = CHUNKS[i];
-    getStartingTiles(startingTile, 32, assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getStartingTiles(startingTile, 32, assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  }
-
-  CHUNKS.forEach(function(chunk) {
-    getImagesForVolXY(assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getImagesForVolXY(assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  });
-}
-
-// get tiles around the starting tile
-function getStartingTiles(realTileNum, bundleSize, volId, chunk, axis, type, callback) {
-  var chunkTile = realTileNum % CHUNK_SIZE;
-  var chunkZ = Math.floor(realTileNum / CHUNK_SIZE);
-  var start = clamp(chunkTile - Math.floor(bundleSize / 2), 0, CHUNK_SIZE - bundleSize);
-  var range = [start, start + bundleSize];
-  var url = "http://cache.eyewire.org/volume/" + volId + "/chunk/0/" + chunk[0] + "/" + chunk[1] + "/" + chunkZ + "/tile/" + axis + "/" + range[0] + ":" + range[1];
-
-  $.get(url).done(function (tilesRes) {
-    for (var trIdx = 0; trIdx < tilesRes.length; trIdx++) {
-      var realTileNum = chunkZ * CHUNK_SIZE + range[0] + trIdx;
-
-      assignedTask.tiles[realTileNum].load(tilesRes[trIdx].data, type, chunk[0], chunk[1], callback);
-    }
-  });
-}
-
-// load all the tiles for the given axis in the given chunk of the given type
-// ex. load all the segmentation tiles in chunk (0, 0, 0) for the 'z' axis (x/y plane)
-function getImagesForVolXY(volId, chunk, axis, type, callback) {
-  var url = "http://cache.eyewire.org/volume/" + volId + "/chunk/0/" + chunk[0] + "/" + chunk[1] + "/" + chunk[2] + "/tile/" + axis + "/" + 0 + ":" + CHUNK_SIZE;
-  $.get(url).done(function (tilesRes) {
-    for (var trIdx = 0; trIdx < tilesRes.length; trIdx++) {
-      var realTileNum = chunk[2] * CHUNK_SIZE + trIdx;
-
-      assignedTask.tiles[realTileNum].load(tilesRes[trIdx].data, type, chunk[0], chunk[1], callback);
-    }
-  });
-}
-
-
-// initialize canvases
-var channelCanvas = document.getElementById("channelCanvas");
-var bufferCanvas = document.getElementById("bufferCanvas");
-
-// prevents dragging the 2d view image
-channelCanvas.onselectstart = function () { return false; };
-
-setContexts(
-  channelCanvas.getContext("2d"),
-  bufferCanvas.getContext("2d")
-);
-
-var mouseX = 0, mouseY = 0;
-
-///////////////////////////////////////////////////////////////////////////////
-/// interacting with task
-
-function register2dInteractions() {
-  $(document).keypress(function(e) {
-    if (e.which === 119) { // w key
-      currentTile -= 1;
-    } else if (e.which === 115) { // s key
-      currentTile += 1;
-    }
-
-    if(e.which === 112){ //P key, test out lie mode
-      amLying = !amLying;
-      $('#modeText').text("Lying: " + amLying);
-      
-      // if(preLying && !amLying){
-      //   $('#beginLie').show;  
-      //   $('#saveLie').hide();
-      //   $('#submitTask').hide();
-      // }
-      // else if(amLying && !preLying){
-      //   $('#beginLie').hide;
-      //   $('#saveLie').show();
-      //   $('#submitTask').hide();
-      // }
-      //  else{
-      //   $('#saveLie').hide();
-      //   $('#submitTask').show();
-      // }
-    }
-    console.log(e.which);
-
-    currentTile = clamp(currentTile, 1, 254);
-    assignedTask.tiles[currentTile].draw();
-  });
-
-  $(channelCanvas).click(function (e) {
-    var parentOffset = $(this).offset();
-    var relX = e.pageX - parentOffset.left;
-    var relY = e.pageY - parentOffset.top;
-
-    var tile = assignedTask.tiles[currentTile];
-
-    if (tile.isComplete()) {
-      var segId = tile.segIdForPosition(relX, relY);
-      toggleSegId(segId);
-    }
-  });
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /// 3d code
 
 var meshes = {};
 
-var renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  preserveDrawingBuffer: true,
-  alpha: false,
-});
-renderer.setDepthTest(false);
-scene = new THREE.Scene();
-setScene();
+var cameraContext1 = {
+  "renderer" : new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+    alpha: false,
+  }),
+  "scene" : new THREE.Scene(),
+  "cube" : {},
+  "camera" : {}, 
+  "light" : {},
+  "center": {},
+  "plane" : {}
+
+};
+
+var cameraContext2 = {
+  "renderer" : new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer: true,
+    alpha: false,
+  }),
+  "scene" : new THREE.Scene(),
+  "cube" : {},
+  "camera" : {}, 
+  "light" : {},
+  "center": {},
+  "plane" : {}
+
+};
+cameraContext1.renderer.setDepthTest(false);
+
+cameraContext2.renderer.setDepthTest(false);
+// rendererTwo.setDepthTest(false);
+
+setScene(cameraContext1);
+
+setScene(cameraContext2);
+
 var threeDContainer = $('#3dContainer');
+var threeDContainerTwo = $("#3dContainerTwo");
+cameraContext1.renderer.setSize(threeDContainer.width(), threeDContainer.height());
+cameraContext2.renderer.setSize(threeDContainerTwo.width(), threeDContainerTwo.height());
 
-renderer.setSize(threeDContainer.width(), threeDContainer.height());
-threeDContainer.html(renderer.domElement);
-
+// rendererTwo.setSize(threeDContainer.width(), threeDContainer.height());
+threeDContainer.html(cameraContext1.renderer.domElement);
+threeDContainerTwo.html(cameraContext2.renderer.domElement);
+alert("Setup complete");
 // THREEJS objects
-var scene, camera, light, segments, cube, center, plane;
+
+
+// var scene, camera, light, segments, cube, center, plane;
+// var scene2, camera2, segments2, cube2, center2, plane2;
 
 // Rotate an object around an arbitrary axis in world space
 function rotateAroundWorldAxis(object, axis, radians) {
@@ -471,44 +255,54 @@ function rotateAroundWorldAxis(object, axis, radians) {
     object.rotation.setFromRotationMatrix(object.matrix);
 }
 
-function setScene() {
-  camera = new THREE.PerspectiveCamera(
+function getCube(){
+
+}
+
+
+
+function setScene(cameraContext) {
+  cameraContext.camera = new THREE.PerspectiveCamera(
     60, // Field of View (degrees)
     1, // Aspect ratio (set later)
     1, // Inner clipping plane
     100 // Far clipping plane
   );
-  camera.position.set(0, 0, 1.8);
-  camera.up.set(0, 1, 0);
+  cameraContext.camera.position.set(0, 0, 1.8);
+  cameraContext.camera.up.set(0, 1, 0);
 
   center = new THREE.Vector3(0,0,0);
 
-  camera.lookAt(center);
+  cameraContext.camera.lookAt(center);
 
   var mesh = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshNormalMaterial() );
-  cube = new THREE.BoxHelper( mesh );
-  cube.material.color.set( 0x555555 );
+  cameraContext.cube = new THREE.BoxHelper( mesh );
+  cameraContext.cube.material.color.set( 0x555555 );
 
-  viewport = new THREE.Object3D();
-  segments = new THREE.Object3D();
+  cameraContext.viewport = new THREE.Object3D();
+  cameraContext.segments = new THREE.Object3D();
 
-  light = new THREE.DirectionalLight(0xffffff);
+  cameraContext.light = new THREE.DirectionalLight(0xffffff);
 
   var planeGeo = new THREE.PlaneBufferGeometry( 1, 1, 1 );
 
   var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2} );
-  plane = new THREE.Mesh( planeGeo, material );
+  cameraContext.plane = new THREE.Mesh( planeGeo, material );
 
-  cube.add(plane);
+  cameraContext.cube.add(cameraContext.plane);
 
   var xAxis = new THREE.Vector3(1,0,0);
-  rotateAroundWorldAxis(cube, xAxis, Math.PI / 2);
+  rotateAroundWorldAxis(cameraContext.cube, xAxis, Math.PI / 2);
 
-  scene.add(cube);
-  cube.add(segments);
-  scene.add(light);
-  scene.add(camera);
+  cameraContext.scene.add(cameraContext.cube);
+  cameraContext.cube.add(cameraContext.segments);
+  cameraContext.scene.add(cameraContext.light);
+  cameraContext.scene.add(cameraContext.camera);
+  cameraContext.animating = false;
+  cameraContext.canvasHasFocus = false;
+  return cameraContext;
 }
+
 
 $("#3dContainer canvas").mousemove(function (e) {
   var jThis = $(this);
@@ -522,49 +316,82 @@ $("#3dContainer canvas").mousemove(function (e) {
 
 
 // flags for energy efficiency
-var animating = false;
+// var animating = false;
 var canvasHasFocus = false;
 
 $("#3dContainer canvas").mouseenter(function (e) {
-  canvasHasFocus = true;
-  if (!animating) {
-    animating = true;
-    requestAnimationFrame(animate);
+  cameraContext1.canvasHasFocus = true;
+  if (!cameraContext1.animating) {
+    cameraContext1.animating = true;
+    requestAnimationFrame(function(){animate(cameraContext1);});
   }
 })
 .mouseout(function () {
-  canvasHasFocus = false;
+  cameraContext1.canvasHasFocus = false;
 });
 
+$("#3dContainerTwo canvas").mousemove(function (e) {
+  var jThis = $(this);
+  var parentOffset = jThis.offset();
+  var relX = e.pageX - parentOffset.left;
+  var relY = e.pageY - parentOffset.top;
+
+  mouseX = relX / jThis.width() - 0.5;
+  mouseY = relY / jThis.height() - 0.5;
+});
+
+
+
+
+$("#3dContainerTwo canvas").mouseenter(function (e) {
+  cameraContext2.canvasHasFocus = true;
+  if (!cameraContext2.animating) {
+   cameraContext2.animating = true;
+   requestAnimationFrame(function(){animate(cameraContext2);});
+  }
+})
+.mouseout(function () {
+  cameraContext2.canvasHasFocus = false;
+});
+
+
 // rotates the cube based on mouse position
-function animate() {
-  var dx = (4 * mouseX - camera.position.x) * 0.05;
-  var dy = (-4 * mouseY - camera.position.y) * 0.05;
+function animate(cameraContext) {
+  var dx = (4 * mouseX - cameraContext.camera.position.x) * 0.05;
+  var dy = (-4 * mouseY - cameraContext.camera.position.y) * 0.05;
 
   if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
     ThreeDViewRender(dx, dy);
-    requestAnimationFrame(animate);
+    requestAnimationFrame(function(){animate(cameraContext);});
   }
   else if (canvasHasFocus) {
-    requestAnimationFrame(animate);
+    requestAnimationFrame(function(){animate(cameraContext);});
   }
   else {
-    animating = false;
+    cameraContext.animating = false;
   }
 }
 
+ThreeDViewRender(cameraContext1);
+ThreeDViewRender(cameraContext2);
+
 // rerenders the 3d world
-function ThreeDViewRender(dx, dy) {
+function ThreeDViewRender (dx, dy){
+  ThreeDViewRenderOneContext(dx,dy, cameraContext1);
+  ThreeDViewRenderOneContext(dx,dy, cameraContext2);
+}
+
+function ThreeDViewRenderOneContext (dx, dy, cameraContext) {
   dx = (dx === undefined) ? 0 : dx;
   dy = (dy === undefined) ? 0 : dy;
 
-  camera.position.x += dx;
-  camera.position.y += dy;
-  camera.lookAt(center);
+  cameraContext.camera.position.x += dx;
+  cameraContext.camera.position.y += dy;
+  cameraContext.camera.lookAt(center);
 
-  light.position.set(camera.position.x, camera.position.y, camera.position.z);
+  cameraContext.light.position.set(cameraContext.camera.position.x, cameraContext.camera.position.y, cameraContext.camera.position.z);
 
-  renderer.render(scene, camera);
+  cameraContext.renderer.render(cameraContext.scene, cameraContext.camera);
 }
 
 // adds the segment to the 3d world
@@ -753,45 +580,45 @@ var currentTile;
 var tileLoadingQueue = [];
 
 // load all the tiles for the assigned task
-function loadTiles(done) {
-  var tileCount = 0;
+// function loadTiles(done) {
+//   var tileCount = 0;
 
-  var startingTile = assignedTask.startingTile;
-  currentTile = startingTile;
+//   var startingTile = assignedTask.startingTile;
+//   currentTile = startingTile;
 
-  function loadTilesNicely() {
-    for (var i = 0; i < 8; i++) {
-      var load = tileLoadingQueue.shift();
-      if (load) {
-        load();
-      }
-    }
+//   function loadTilesNicely() {
+//     for (var i = 0; i < 8; i++) {
+//       var load = tileLoadingQueue.shift();
+//       if (load) {
+//         load();
+//       }
+//     }
 
-    if (tileCount < 256) {
-      // continue to check for more tiles
-      requestAnimationFrame(loadTilesNicely);
-    }
-  }
-  requestAnimationFrame(loadTilesNicely);
+//     if (tileCount < 256) {
+//       // continue to check for more tiles
+//       requestAnimationFrame(loadTilesNicely);
+//     }
+//   }
+//   requestAnimationFrame(loadTilesNicely);
 
-  loadTilesForAxis('xy', startingTile, function (tile) {
-    tileCount++;
+//   loadTilesForAxis('xy', startingTile, function (tile) {
+//     tileCount++;
 
-    if (tile.id === startingTile) {
-      loadedStartingTile = true;
-      tile.draw();
-      $('#channelCanvas').show();
+//     if (tile.id === startingTile) {
+//       loadedStartingTile = true;
+//       tile.draw();
+//       $('#channelCanvas').show();
 
-      register2dInteractions();
-    }
+//       register2dInteractions();
+//     }
 
-    if (tileCount === 256) {
-      done();
-    }
-  });
+//     if (tileCount === 256) {
+//       done();
+//     }
+//   });
 
-  ThreeDViewRender();
-}
+//   ThreeDViewRender();
+// }
 
 function loadSeedMeshes(done) {
   var seedsLoaded = 0;
@@ -843,20 +670,20 @@ function playTask(task) {
 
     $('#submitTask').click(function () {
       calculateSuccessVals();
-      var url = 'https://beta.eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
+      var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
       $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
         $('#results').html('score ' + res.score + ', accuracy ' + res.accuracy + ', trailblazer ' + res.trailblazer);
       });
     });
 
-    $('#saveLie').click(startGuessing);
-    $('#beginLie').click(startLying);
+   
   });
 }
 
 
 ///TODO: move this into a button to start the task
-function start() {
-  $.post('https://beta.eyewire.org/2.0/tasks/testassign').done(playTask);
+function start(JSONText) {
+  obj = JSON.parse(JSONText);
+  remSegIds.add
+  $.post('https://eyewire.org/2.0/tasks/'+ obj.taskId + '/testassign').done(playTask);
 }
-start();
