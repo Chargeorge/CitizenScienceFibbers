@@ -236,7 +236,7 @@ cameraContext2.renderer.setSize(threeDContainerTwo.width(), threeDContainerTwo.h
 
 // rendererTwo.setSize(threeDContainer.width(), threeDContainer.height());
 threeDContainer.html(cameraContext1.renderer.domElement);
-threeDContainerTwo.html(rendererTwo .domElement);
+threeDContainerTwo.html(cameraContext2.renderer.domElement);
 alert("Setup complete");
 // THREEJS objects
 
@@ -289,7 +289,7 @@ function setScene(cameraContext) {
   var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2} );
   cameraContext.plane = new THREE.Mesh( planeGeo, material );
 
-  cameraContext.cube.add(plane);
+  cameraContext.cube.add(cameraContext.plane);
 
   var xAxis = new THREE.Vector3(1,0,0);
   rotateAroundWorldAxis(cameraContext.cube, xAxis, Math.PI / 2);
@@ -298,6 +298,9 @@ function setScene(cameraContext) {
   cameraContext.cube.add(cameraContext.segments);
   cameraContext.scene.add(cameraContext.light);
   cameraContext.scene.add(cameraContext.camera);
+  cameraContext.animating = false;
+  cameraContext.canvasHasFocus = false;
+  return cameraContext;
 }
 
 
@@ -313,49 +316,82 @@ $("#3dContainer canvas").mousemove(function (e) {
 
 
 // flags for energy efficiency
-var animating = false;
+// var animating = false;
 var canvasHasFocus = false;
 
 $("#3dContainer canvas").mouseenter(function (e) {
-  canvasHasFocus = true;
-  if (!animating) {
-    animating = true;
-    requestAnimationFrame(animate);
+  cameraContext1.canvasHasFocus = true;
+  if (!cameraContext1.animating) {
+    cameraContext1.animating = true;
+    requestAnimationFrame(function(){animate(cameraContext1);});
   }
 })
 .mouseout(function () {
-  canvasHasFocus = false;
+  cameraContext1.canvasHasFocus = false;
 });
 
+$("#3dContainerTwo canvas").mousemove(function (e) {
+  var jThis = $(this);
+  var parentOffset = jThis.offset();
+  var relX = e.pageX - parentOffset.left;
+  var relY = e.pageY - parentOffset.top;
+
+  mouseX = relX / jThis.width() - 0.5;
+  mouseY = relY / jThis.height() - 0.5;
+});
+
+
+
+
+$("#3dContainerTwo canvas").mouseenter(function (e) {
+  cameraContext2.canvasHasFocus = true;
+  if (!cameraContext2.animating) {
+   cameraContext2.animating = true;
+   requestAnimationFrame(function(){animate(cameraContext2);});
+  }
+})
+.mouseout(function () {
+  cameraContext2.canvasHasFocus = false;
+});
+
+
 // rotates the cube based on mouse position
-function animate() {
-  var dx = (4 * mouseX - camera.position.x) * 0.05;
-  var dy = (-4 * mouseY - camera.position.y) * 0.05;
+function animate(cameraContext) {
+  var dx = (4 * mouseX - cameraContext.camera.position.x) * 0.05;
+  var dy = (-4 * mouseY - cameraContext.camera.position.y) * 0.05;
 
   if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
     ThreeDViewRender(dx, dy);
-    requestAnimationFrame(animate);
+    requestAnimationFrame(function(){animate(cameraContext);});
   }
   else if (canvasHasFocus) {
-    requestAnimationFrame(animate);
+    requestAnimationFrame(function(){animate(cameraContext);});
   }
   else {
-    animating = false;
+    cameraContext.animating = false;
   }
 }
 
+ThreeDViewRender(cameraContext1);
+ThreeDViewRender(cameraContext2);
+
 // rerenders the 3d world
-function ThreeDViewRender(dx, dy) {
+function ThreeDViewRender (dx, dy){
+  ThreeDViewRenderOneContext(dx,dy, cameraContext1);
+  ThreeDViewRenderOneContext(dx,dy, cameraContext2);
+}
+
+function ThreeDViewRenderOneContext (dx, dy, cameraContext) {
   dx = (dx === undefined) ? 0 : dx;
   dy = (dy === undefined) ? 0 : dy;
 
-  camera.position.x += dx;
-  camera.position.y += dy;
-  camera.lookAt(center);
+  cameraContext.camera.position.x += dx;
+  cameraContext.camera.position.y += dy;
+  cameraContext.camera.lookAt(center);
 
-  light.position.set(camera.position.x, camera.position.y, camera.position.z);
+  cameraContext.light.position.set(cameraContext.camera.position.x, cameraContext.camera.position.y, cameraContext.camera.position.z);
 
-  renderer.render(scene, camera);
+  cameraContext.renderer.render(cameraContext.scene, cameraContext.camera);
 }
 
 // adds the segment to the 3d world
