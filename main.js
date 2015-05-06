@@ -722,6 +722,8 @@ function startLying(){
   });
 
    $("#beginLie").hide();
+   $("#beginSolve").hide();
+   $("#howTo").hide();
    $("#saveLie").show();
    alert("Begin making the lie.");
    var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
@@ -951,7 +953,11 @@ function start() {
 start();
 
 ///////////////////////////////////////////////////////////////////////////////
+    $(document).ready(function() {
+    $("#list").hide();
+});
     $(".box-shadow-menu").click(function(){
        $("#list").toggle();
     });
+
 
