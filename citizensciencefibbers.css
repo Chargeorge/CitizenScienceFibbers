@@ -12,6 +12,7 @@ body {
 
 }
 
+
 p{
   color: white !important;
   text-align: center;
@@ -194,7 +195,7 @@ button {
   border:1px solid #035ed7;
   display:inline-block;
   cursor:pointer;
-  color:#ffffff;
+  color:#ffffff !important;
   font-family:Arial;
   font-size:15px;
   padding:9px 23px;
