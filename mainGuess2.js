@@ -17,16 +17,16 @@ var accuracyDataNew = 6;
 var CHUNK_SIZE = 128;
 var gameDataObj;
 var JSONGuesses = [
-  '{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}',
-  '{"addedSegIds":[112,58,208,67,45,37,27,22,197,206],"remSegIds":[],"allSegIds":[95,112,58,208,67,45,37,27,22,197,206],"taskId":755927,"comment":"","lieAccuracy":0.520811545701736,"origAccuracy":1}',
-  '{"addedSegIds":[],"remSegIds":[1333,2343],"allSegIds":[2503,2505,2566,2486,1548,1447,1526],"taskId":756721,"comment":"","lieAccuracy":0,"origAccuracy":0}',
-  '{"addedSegIds":[104,1248,1179,1408,1351],"remSegIds":[],"allSegIds":[1005,1120,104,1248,1179,1408,1351],"taskId":757677,"comment":"","lieAccuracy":0.08268493787016606,"origAccuracy":0.9066213921901528}',
-  '{"addedSegIds":[3758,3860],"remSegIds":[],"allSegIds":[4497,3708,2337,1746,1567,3758,3860],"taskId":757626,"comment":"","lieAccuracy":0.8778297179473712,"origAccuracy":0.9501312335958005}',
-  '{"addedSegIds":[],"remSegIds":[2056],"allSegIds":[1409,1497,1662,1674,1609,1590,1846,1820,2118,2056],"taskId":758322,"comment":"","lieAccuracy":0.9806915132465199,"origAccuracy":0.9806915132465199}',
-  '{"addedSegIds":[465],"remSegIds":[],"allSegIds":[75,465],"taskId":758362,"comment":"","lieAccuracy":0.8924943045378979,"origAccuracy":1}',
-  '{"addedSegIds":[104],"remSegIds":[],"allSegIds":[150,185,104],"taskId":757045,"comment":"","lieAccuracy":0.09198481803974101,"origAccuracy":1}',
-  '{"addedSegIds":[6406,5868,6164,5810,6490],"remSegIds":[],"allSegIds":[5982,5185,6028,6026,5819,6069,6070,5222,6054,5515,5766,5678,5586,5639,6406,5868,6164,5810,6490],"taskId":757758,"comment":"","lieAccuracy":0.5951134203007595,"origAccuracy":0.9706950594556943}',
-  '{"addedSegIds":[1709],"remSegIds":[],"allSegIds":[5099,4975,4955,1709],"taskId":756052,"comment":"","lieAccuracy":0.04192432659050414,"origAccuracy":1}'
+  '{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}'
+  // '{"addedSegIds":[112,58,208,67,45,37,27,22,197,206],"remSegIds":[],"allSegIds":[95,112,58,208,67,45,37,27,22,197,206],"taskId":755927,"comment":"","lieAccuracy":0.520811545701736,"origAccuracy":1}',
+  // '{"addedSegIds":[],"remSegIds":[1333,2343],"allSegIds":[2503,2505,2566,2486,1548,1447,1526],"taskId":756721,"comment":"","lieAccuracy":0,"origAccuracy":0}',
+  // '{"addedSegIds":[104,1248,1179,1408,1351],"remSegIds":[],"allSegIds":[1005,1120,104,1248,1179,1408,1351],"taskId":757677,"comment":"","lieAccuracy":0.08268493787016606,"origAccuracy":0.9066213921901528}',
+  // '{"addedSegIds":[3758,3860],"remSegIds":[],"allSegIds":[4497,3708,2337,1746,1567,3758,3860],"taskId":757626,"comment":"","lieAccuracy":0.8778297179473712,"origAccuracy":0.9501312335958005}',
+  // '{"addedSegIds":[],"remSegIds":[2056],"allSegIds":[1409,1497,1662,1674,1609,1590,1846,1820,2118,2056],"taskId":758322,"comment":"","lieAccuracy":0.9806915132465199,"origAccuracy":0.9806915132465199}',
+  // '{"addedSegIds":[465],"remSegIds":[],"allSegIds":[75,465],"taskId":758362,"comment":"","lieAccuracy":0.8924943045378979,"origAccuracy":1}',
+  // '{"addedSegIds":[104],"remSegIds":[],"allSegIds":[150,185,104],"taskId":757045,"comment":"","lieAccuracy":0.09198481803974101,"origAccuracy":1}',
+  // '{"addedSegIds":[6406,5868,6164,5810,6490],"remSegIds":[],"allSegIds":[5982,5185,6028,6026,5819,6069,6070,5222,6054,5515,5766,5678,5586,5639,6406,5868,6164,5810,6490],"taskId":757758,"comment":"","lieAccuracy":0.5951134203007595,"origAccuracy":0.9706950594556943}',
+  // '{"addedSegIds":[1709],"remSegIds":[],"allSegIds":[5099,4975,4955,1709],"taskId":756052,"comment":"","lieAccuracy":0.04192432659050414,"origAccuracy":1}'
 ]
 
 // '{"addedSegIds":[2622],"remSegIds":[565,2811],"allSegIds":[2254,2651,2895,2622],"taskId":753588,"comment":"","lieAccuracy":0,"origAccuracy":0}',
@@ -510,20 +510,22 @@ function startLying(){
 }
 
 function startGuessing(){
-  currentShowingTruth = true;
+  currentShowingTruth = false;
   // switchLie();
 
   //Choose a random position to start at
   textIndex = Math.floor((Math.random() * 2));
 
   $("#modeText").text(texts[textIndex]);
-  correctIndex = textIndex;
+   correctIndex = (textIndex == 1) ? 0 : 1;
+  // correctIndex = textIndex;
+
   console.log(correctIndex);
    
   $("#submitTask").show();
   $("#gameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
-  if(randomIndex2 > 0){currentShowingTruth = false; console.log("Switching"); switchLie();}
+  if(randomIndex2 > 0){ console.log("Switching"); switchLie();}
   console.log(randomIndex2);
   // alert("Begin player guess.");
 
@@ -671,7 +673,7 @@ function guessIndex(index){
 
   }
     var scoreVal = (origAccuracy - accuracyDataNew)  * 100;
-    $("#score").text("This cube was worth " +scoreVal);
+    $("#score").text("This cube was worth " +scoreVal.toFixed(2));
     $("#score").show();
 }
 
