@@ -727,7 +727,9 @@ function startLying(){
 
    $("#beginLie").hide();
    $("#saveLie").show();
-   alert("Begin making the lie.");
+   $("#createCubeText").hide();
+   $("#createTrickText").show();
+   // alert("Begin making the lie.");
    var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
       $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
         
@@ -758,10 +760,13 @@ function startGuessing(){
     });
   $("#submitTask").show();
   $("#saveLie").hide();
+  $("#createTrickText").hide();
   $("#gameControls").show();
+  $("#backToHomeText").show();
+  $("#homebutton").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
-  alert("Begin player guess.");
+  // alert("Begin player guess.");
 
      var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
       $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {

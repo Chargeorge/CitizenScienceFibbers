@@ -1,14 +1,15 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
 	<script src="THREESegment.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="citizensciencefibbers.css">
 	<link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,300" rel="stylesheet" type="text/css">
 </head>
 <body>
+
 	<div id="nav">
 		<a class="box-shadow-menu"></a>
 		<div id="list" style="display: inline;">
@@ -35,38 +36,43 @@
  			<a href="mainindex.html"><img style="padding-top: 10px;" src="logo.png" width="100%" height="100%"></a>
  		</div>
 	    <div style="width:500px; margin:auto; padding-top: 10px;">
-		    <div id="identifyCorrect">
-			    <div id="ModeText" style="font-size: 24px; text-align: center;">Identify The Correct Cube </div>
+		    <div id="createCubeText">
+			    <div id="ModeText" style="font-size: 24px; text-align: center;">Create A Cube </div>
+				<div id="instructions" style="text-align: center;">Complete the branch as accurately as possible and press "Add Tricks" to begin tricking other players.</div>
 			</div>
-			<div id="isCorrectOr">
-			    <div id="correct" style="font-size: 18px; text-align: center; display: none;">You Got It Right! </div>
-				<div id="wrong" style="font-size: 18px; text-align: center; display: none;">You Got It Wrong! </div>
+			<div id="createTrickText" style="display: none;">
+			    <div id="ModeText" style="font-size: 24px; text-align: center;">Create Tricks </div>
+				<div id="instructions" style="text-align: center;"> Add and remove segements to trick another player.</div>
 			</div>
-			<div style="width:150px; margin:auto; padding-top: 10px;">
-			<button id="homebutton" style="display: none;" onclick="window.location='mainindex.html';">Back To Home</button>
+			<div id="backToHomeText" style="display: none;">
+			    <div id="ModeText" style="font-size: 24px; text-align: center;">Trick Cube Created! </div>
 			</div>
 
 	    </div>
 
-	
-	<div id="content" style="padding-top: 10px;">
-	<div id="modeText" align="middle" style="font-side: 32px; padding-top: 10px;"></div>
-		<div class="createCubeWrapper">
-			<div class="side left">
-				<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
-				<div clss="threeD">
-					<div id="3dContainer" style="width: 500px; height: 500px;"></div>
-				</div>
-				<br/>
-					<!-- <div id="results"></div> -->
-					<div id="CurrentlyViewing"/>
-				</div>
-			</div>
+	     <div id="gameControls" style="margin:auto; padding-top: 20px;">
+			<button id="beginLie">Add Tricks</button> &nbsp;
+			<button id="saveLie" style="display: none;">Save Tricks</button>
+			<button id="homebutton" style="display: none;" onclick="window.location='mainindex.html';">Back To Home</button>
 
-
+			<!-- <div id="results"></div> -->
+			<!-- <div id="CurrentlyViewing"/> -->
+			<!-- <DIV id="grabstuff"></div> -->
 		</div>
-<!-- 
-		<div class="solveCubeWrapper">
+	</div>
+
+<!-- 	<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+	<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
+
+	<div id="3dContainer" style="width: 500px; height: 500px;"></div>
+
+	<div id="gameControls">
+		
+	</div> -->
+
+	<div id="content">
+
+		<div class="createCubeWrapper" style="padding-top: 150px;">
 			<div class="side left">
 				<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
 				<div clss="threeD">
@@ -81,27 +87,15 @@
 			</div>
 
 			<div class="side right">
-				
+				<div class="twoD">
+					<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+					<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
+				</div>
 			</div>
-		</div> -->		
+		</div>
 
-	</div>
-<!-- 		<div id="gameControls">
-			<button id="saveLie" style="display: none;">Save Lie</button>
-			<button id="beginLie" >Begin Lying</button><br/>
-			<!-- <button id="submitTask" style="display: none;">Submit</button><br/> -->
-			<!-- <div id="results"></div>
-			<div id="CurrentlyViewing"/>
-		</div>  -->
-	<br>
-	<div id="GameControls" >
-		<div> <button id="Switch" value= "SwitchShowing"> Switch which cube I'm Showing </div>
-		<br/> 
 
-		<div id="choose"> <button id="ChooseA" value="Choose A" >I think A is right </button> <button id="ChooseB" value="ChooseB"> I think B is right!</button></div>
-	</div>
 
-	<DIV id="grabstuff"></div> 
 </body>
-<script src="mainGuess2.js"></script>
+<script src="main.js"></script>
 </html>

@@ -516,7 +516,7 @@ function startGuessing(){
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0){currentShowingTruth = false; console.log("Switching"); switchLie();}
   console.log(randomIndex2);
-  alert("Begin player guess.");
+  // alert("Begin player guess.");
 
     
 }
@@ -622,6 +622,7 @@ function playTask(task) {
     console.log('we are done loading!');
     clearInterval(loadingIndicator);
     $('#3dContainer').show();
+    $('#loadingText').hide();
 
     $('#submitTask').click(function () {
       calculateSuccessVals();
@@ -647,10 +648,17 @@ function playTask(task) {
 
 function guessIndex(index){
   if(correctIndex == index){
-    alert("YOU GOT IT RIGHT");
+    // alert("YOU GOT IT RIGHT");
+    $("#correct").show();
+    $("#homebutton").show();
+    $("#choose").hide();
   }
   else{
-    alert("You Got it WRONG");
+    // alert("You Got it WRONG");
+    $("#wrong").show();
+    $("#homebutton").show();
+    $("#choose").hide();
+
   }
 }
 
@@ -681,8 +689,8 @@ function loadJSON(JSONText){
 ///TODO: move this into a button to start the task
 function start() {
   var indexToLoad = Math.floor(Math.random() * JSONGuesses.length);
-  alert(indexToLoad);
-  alert(JSONGuesses[indexToLoad]);
+  // alert(indexToLoad);
+  // alert(JSONGuesses[indexToLoad]);
    loadJSON(JSONGuesses[indexToLoad]);
   // loadJSON('{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}');
   $.post('https://eyewire.org/2.0/tasks/' + taskId +'/testassign').done(playTask);
