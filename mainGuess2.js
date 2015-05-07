@@ -508,20 +508,14 @@ function startGuessing(){
   textIndex = Math.floor((Math.random() * 2));
 
   $("#modeText").text(texts[textIndex]);
-  correctIndex = !textIndex;
-  remSegIds.forEach(function(segId){
-      var segPos = assignedTask.selected.indexOf(segId);
-        changeColor(segId, 0x0000ff);
-        assignedTask.selected.splice(segPos, 1);
-        THREEDViewRemoveSegment(segId);
-      });
-      addedSegIds.forEach(function(segId){
-        changeColor(segId, 0x0000ff);
-    });
+  correctIndex = textIndex;
+  console.log(correctIndex);
+   
   $("#submitTask").show();
   $("#gameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
-  if(randomIndex2 > 0) switchLie();
+  if(randomIndex2 > 0){currentShowingTruth = false; console.log("Switching"); switchLie();}
+  console.log(randomIndex2);
   alert("Begin player guess.");
 
     
@@ -644,7 +638,9 @@ function playTask(task) {
       console.log("adding "  + consensusSegIds[x]);
       selectSegId(consensusSegIds[x]);
     }
-    startGuessing();
+
+
+     startGuessing();
   });
 
 }
