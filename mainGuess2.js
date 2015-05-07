@@ -17,10 +17,11 @@ var accuracyDataNew = 6;
 var CHUNK_SIZE = 128;
 var gameDataObj;
 var JSONGuesses = [
-  '{"addedSegIds":[2622],"remSegIds":[565,2811],"allSegIds":[2254,2651,2895,2622],"taskId":753588,"comment":"","lieAccuracy":0,"origAccuracy":0}',
   '{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}'
 ]
 
+// '{"addedSegIds":[2622],"remSegIds":[565,2811],"allSegIds":[2254,2651,2895,2622],"taskId":753588,"comment":"","lieAccuracy":0,"origAccuracy":0}',
+  
 
 var CHUNKS = [
   [0,0,0],
@@ -500,7 +501,7 @@ function startLying(){
 }
 
 function startGuessing(){
-  currentShowingTruth = false;
+  currentShowingTruth = true;
   // switchLie();
 
   //Choose a random position to start at
@@ -518,18 +519,12 @@ function startGuessing(){
         changeColor(segId, 0x0000ff);
     });
   $("#submitTask").show();
-  $("#saveLie").hide();
   $("#gameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
 
-     var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
-      $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
-        accuracyDataNew =  res.accuracy;
-        $("#grabstuff").text(getJSON());
-
-      });
+    
 }
 
 function switchLie(){
@@ -649,6 +644,7 @@ function playTask(task) {
       console.log("adding "  + consensusSegIds[x]);
       selectSegId(consensusSegIds[x]);
     }
+    startGuessing();
   });
 
 }
