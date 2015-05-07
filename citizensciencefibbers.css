@@ -4,7 +4,6 @@ body {
 	position: relative;
 	min-height:100%;
 	width: 100%;
-	background-color: #000000 !important;
 	background-color: #000000;
 	color: white;
 	height:100%;
@@ -12,8 +11,6 @@ body {
 	font-family: 'Open Sans',sans-serif;
 
 }
-
-
 
 #pageHeader {
   width: 100%;
@@ -39,12 +36,10 @@ body {
     0 0.8em 0 0 white;
 }
 
-/*#gameLogo{
-  width: 200px;
 #gameLogo{
   width: 100px;
   height: 100px;
-}*/
+}
 
 #nav a img {
   vertical-align: top;
@@ -70,9 +65,6 @@ body {
   font-family: 'Open Sans',sans-serif;
 }
 
-#gameControls{
-  position:;
-  bottom:;
 .gameControls{
   position:fixed;
   bottom:0;
@@ -80,10 +72,6 @@ body {
   height:60px;
   text-align: center;
 }
-.divider{
-    width:5px;
-}
-
 
 #nav ul {
   margin-left: 10px;
@@ -166,11 +154,6 @@ a {
 
 .twoD {
   cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAfCAYAAAAfrhY5AAAAGXRF…SUm4s98DHoDeWoHe13JEX7K4W5JZaotxSf2/klvpHgAEA/beulxpK/qIAAAAASUVORK5CYII=") 15 15,crosshair!important;
-  margin:auto;
-      height:300px;
-    width:300px;
-    padding-top: 110px;
-
 }
 
 #submitCube {
