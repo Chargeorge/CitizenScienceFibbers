@@ -957,7 +957,11 @@ function start() {
 start();
 
 ///////////////////////////////////////////////////////////////////////////////
-    $(".box-shadow-menu").click(function(){
-       $("#list").toggle();
-    });
+$(document).ready(function() {
+  $("#list").hide();
+});
+
+$(".box-shadow-menu").click(function(){
+   $("#list").toggle();
+});
 
