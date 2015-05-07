@@ -15,6 +15,13 @@ var accuracyDataOrig = 5;
 var accuracyDataNew = 6;
 // constants
 var CHUNK_SIZE = 128;
+var gameDataObj;
+var JSONGuesses = [
+  '{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}'
+]
+
+// '{"addedSegIds":[2622],"remSegIds":[565,2811],"allSegIds":[2254,2651,2895,2622],"taskId":753588,"comment":"","lieAccuracy":0,"origAccuracy":0}',
+  
 
 var CHUNKS = [
   [0,0,0],
@@ -73,136 +80,6 @@ function segIdToRGB(segId) {
   return [red, green, blue];
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// classes
-function Tile(id) {
-  this.id = id;
-  this.count = 0;
-  this.segmentation = {};
-  this.channel = {};
-}
-
-Tile.prototype.isComplete = function () {
-  return this.count === 8; // 4 channel, 4 segmentation
-};
-
-function convertBase64ImgToImage(b64String, callback) {
-  var imageBuffer = new Image();
-
-  imageBuffer.onload = function () {
-    callback(this);
-  };
-
-  imageBuffer.src = b64String;
-}
-
-Tile.prototype.load = function (data, type, x, y, callback) {
-  var _this = this;
-
-  var chunk = y * 2 + x;
-
-  if (_this[type][chunk]) {
-    return; // chunk already loaded or in queue
-  }
-
-  _this[type][chunk] = true; // mark it as being in progress
-
-  tileLoadingQueue.push(function () {
-    convertBase64ImgToImage(data, function (image) {
-      // process image
-      bufferContext.drawImage(image, 0, 0);
-      _this[type][chunk] = bufferContext.getImageData(0, 0, CHUNK_SIZE, CHUNK_SIZE);
-      _this.count++;
-
-      if (_this.isComplete()) { // all tiles have been loaded
-        callback(_this);
-      }
-    });
-  });
-};
-
-// draw this tile in the 2d view and update the plane position in the 3d view
-Tile.prototype.draw = function () {
-  plane.position.z = -0.5 + (currentTile / 256);
-  ThreeDViewRender();
-
-  for (var i = 0; i < 4; i++) {
-    var x = i % 2;
-    var y = i < 2 ? 0 : 1;
-
-    if (!this.isComplete()) {
-      return;
-    }
-
-    var segData = this.segmentation[i];
-    var targetData = this.channel[i];
-
-    channelContext.putImageData(
-      highlight(targetData, segData),
-      x * CHUNK_SIZE,
-      y * CHUNK_SIZE
-    );
-  }
-};
-
-// highlight the seeds and selected segments in the tile 2d view
-function highlight(targetData, segData) {
-  var copy = bufferContext.createImageData(CHUNK_SIZE, CHUNK_SIZE);
-  copy.data.set(targetData.data);
-
-  var copyPixels = copy.data;
-  var segPixels = segData.data;
-
-  var selected = assignedTask.selected;
-
-  var selectedColors = selected.map(segIdToRGB);
-  var seedColors = assignedTask.seeds.map(segIdToRGB);
-
-  function getColor(buffer, startIndex) {
-    return [buffer[startIndex], buffer[startIndex+1], buffer[startIndex+2]];
-  }
-
-  function setColor(buffer, startIndex, rgb) {
-    overlay = [rgb[0] * 0.5, rgb[1] * 0.5, rgb[2] * 0.5];
-
-    for (i = 0; i < 3; i++) {
-      buffer[startIndex + i] = overlay[i] + buffer[startIndex + i] * 0.5;
-    }
-  }
-
-  var seedColor = [0, 0, 255];
-  var selectedColor = [0, 255, 0];
-
-  for (var j = 0; j < segPixels.length; j += 4) {
-    var rgb = getColor(segPixels, j);
-
-    for (var k = 0; k < seedColors.length; k += 1) {
-      if (rgbEqual(seedColors[k], rgb)) {
-        setColor(copyPixels, j, seedColor);
-      }
-    }
-
-    for (var k = 0; k < selectedColors.length; k += 1) {
-      if (rgbEqual(selectedColors[k], rgb)) {
-        setColor(copyPixels, j, selectedColor);
-      }
-    }
-  }
-
-  return copy;
-}
-
-// returns the the segment id located at the given x y position of this tile
-Tile.prototype.segIdForPosition = function(x, y) {
-  var chunkX = Math.floor(x / CHUNK_SIZE);
-  var chunkY = Math.floor(y / CHUNK_SIZE);
-  var chunkRelX = x % CHUNK_SIZE;
-  var chunkRelY = y % CHUNK_SIZE;
-  var data = this.segmentation[chunkY * 2 + chunkX].data;
-  var start = (chunkRelY * CHUNK_SIZE + chunkRelX) * 4;
-  var rgb = [data[start], data[start+1], data[start+2]];
-  return rgbToSegId(rgb);
-};
 
 // image operations
 
@@ -214,19 +91,18 @@ Tile.prototype.segIdForPosition = function(x, y) {
 function selectSegId(segId) {
   console.log("adding more segids");
  
-  if(amLying){
-    if(isConsensus(segId) <= 0){
-      console.log("adding added segment");
-      addedSegIds.push( segId);
+  // if(amLying){
+  //   if(isConsensus(segId) <= 0){
+  //     console.log("adding added segment");
+  //     addedSegIds.push( segId);
 
       
-    }else{
-      var lieIdx = remSegIds.indexOf(segId);
-      remSegIds.splice(lieIdx,1);
-    }
-  }
+  //   }else{
+  //     var lieIdx = remSegIds.indexOf(segId);
+  //     remSegIds.splice(lieIdx,1);
+  //   }
+  // }
   assignedTask.selected.push(segId);
-  assignedTask.tiles[currentTile].draw();
   displayMeshForVolumeAndSegId(assignedTask.segmentation_id, segId);
   if(!amLying) {changeColor(segId, 0x00ff00);}
 }
@@ -265,7 +141,7 @@ function deselectSegId(segId) {
     assignedTask.selected.splice(selectedIdx, 1);
   }
 
-  assignedTask.tiles[currentTile].draw();
+  // assignedTask.tiles[currentTile].draw();
   THREEDViewRemoveSegment(segId);
 }
 
@@ -324,126 +200,12 @@ function checkIds(){
   // foreach(var i in assignedTask)
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// loading 2d image data
-
-function loadTilesForAxis(axis, startingTile, callback) {
-  for (var i = 0; i < 256; i++) {
-    assignedTask.tiles[i] = new Tile(i);
-  }
-
-  for (var i = 0; i < 4; i++) {
-    var chunk = CHUNKS[i];
-    getStartingTiles(startingTile, 1, assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getStartingTiles(startingTile, 1, assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  }
-
-  for (var i = 0; i < 4; i++) {
-    var chunk = CHUNKS[i];
-    getStartingTiles(startingTile, 32, assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getStartingTiles(startingTile, 32, assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  }
-
-  CHUNKS.forEach(function(chunk) {
-    getImagesForVolXY(assignedTask.channel_id, chunk, axis, 'channel', callback);
-    getImagesForVolXY(assignedTask.segmentation_id, chunk, axis, 'segmentation', callback);
-  });
-}
-
-// get tiles around the starting tile
-function getStartingTiles(realTileNum, bundleSize, volId, chunk, axis, type, callback) {
-  var chunkTile = realTileNum % CHUNK_SIZE;
-  var chunkZ = Math.floor(realTileNum / CHUNK_SIZE);
-  var start = clamp(chunkTile - Math.floor(bundleSize / 2), 0, CHUNK_SIZE - bundleSize);
-  var range = [start, start + bundleSize];
-  var url = "http://cache.eyewire.org/volume/" + volId + "/chunk/0/" + chunk[0] + "/" + chunk[1] + "/" + chunkZ + "/tile/" + axis + "/" + range[0] + ":" + range[1];
-
-  $.get(url).done(function (tilesRes) {
-    for (var trIdx = 0; trIdx < tilesRes.length; trIdx++) {
-      var realTileNum = chunkZ * CHUNK_SIZE + range[0] + trIdx;
-
-      assignedTask.tiles[realTileNum].load(tilesRes[trIdx].data, type, chunk[0], chunk[1], callback);
-    }
-  });
-}
-
-// load all the tiles for the given axis in the given chunk of the given type
-// ex. load all the segmentation tiles in chunk (0, 0, 0) for the 'z' axis (x/y plane)
-function getImagesForVolXY(volId, chunk, axis, type, callback) {
-  var url = "http://cache.eyewire.org/volume/" + volId + "/chunk/0/" + chunk[0] + "/" + chunk[1] + "/" + chunk[2] + "/tile/" + axis + "/" + 0 + ":" + CHUNK_SIZE;
-  $.get(url).done(function (tilesRes) {
-    for (var trIdx = 0; trIdx < tilesRes.length; trIdx++) {
-      var realTileNum = chunk[2] * CHUNK_SIZE + trIdx;
-
-      assignedTask.tiles[realTileNum].load(tilesRes[trIdx].data, type, chunk[0], chunk[1], callback);
-    }
-  });
-}
 
 
-// initialize canvases
-var channelCanvas = document.getElementById("channelCanvas");
-var bufferCanvas = document.getElementById("bufferCanvas");
 
-// prevents dragging the 2d view image
-channelCanvas.onselectstart = function () { return false; };
 
-setContexts(
-  channelCanvas.getContext("2d"),
-  bufferCanvas.getContext("2d")
-);
 
-var mouseX = 0, mouseY = 0;
 
-///////////////////////////////////////////////////////////////////////////////
-/// interacting with task
-
-function register2dInteractions() {
-  $(document).keypress(function(e) {
-    if (e.which === 119) { // w key
-      currentTile -= 1;
-    } else if (e.which === 115) { // s key
-      currentTile += 1;
-    }
-
-    if(e.which === 112){ //P key, test out lie mode
-      amLying = !amLying;
-      // $('#modeText').text("Lying: " + amLying);
-      
-      // if(preLying && !amLying){
-      //   $('#beginLie').show;  
-      //   $('#saveLie').hide();
-      //   $('#submitTask').hide();
-      // }
-      // else if(amLying && !preLying){
-      //   $('#beginLie').hide;
-      //   $('#saveLie').show();
-      //   $('#submitTask').hide();
-      // }
-      //  else{
-      //   $('#saveLie').hide();
-      //   $('#submitTask').show();
-      // }
-    }
-    console.log(e.which);
-
-    currentTile = clamp(currentTile, 1, 254);
-    assignedTask.tiles[currentTile].draw();
-  });
-
-  $(channelCanvas).click(function (e) {
-    var parentOffset = $(this).offset();
-    var relX = e.pageX - parentOffset.left;
-    var relY = e.pageY - parentOffset.top;
-
-    var tile = assignedTask.tiles[currentTile];
-
-    if (tile.isComplete()) {
-      var segId = tile.segIdForPosition(relX, relY);
-      toggleSegId(segId);
-    }
-  });
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -739,7 +501,7 @@ function startLying(){
 }
 
 function startGuessing(){
-  currentShowingTruth = false;
+  currentShowingTruth = true;
   // switchLie();
 
   //Choose a random position to start at
@@ -757,18 +519,12 @@ function startGuessing(){
         changeColor(segId, 0x0000ff);
     });
   $("#submitTask").show();
-  $("#saveLie").hide();
   $("#gameControls").show();
   var randomIndex2 = Math.floor((Math.random() * 2));
   if(randomIndex2 > 0) switchLie();
   alert("Begin player guess.");
 
-     var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
-      $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
-        accuracyDataNew =  res.accuracy;
-        $("#grabstuff").text(getJSON());
-
-      });
+    
 }
 
 function switchLie(){
@@ -823,45 +579,7 @@ var currentTile;
 var tileLoadingQueue = [];
 
 // load all the tiles for the assigned task
-function loadTiles(done) {
-  var tileCount = 0;
 
-  var startingTile = assignedTask.startingTile;
-  currentTile = startingTile;
-
-  function loadTilesNicely() {
-    for (var i = 0; i < 8; i++) {
-      var load = tileLoadingQueue.shift();
-      if (load) {
-        load();
-      }
-    }
-
-    if (tileCount < 256) {
-      // continue to check for more tiles
-      requestAnimationFrame(loadTilesNicely);
-    }
-  }
-  requestAnimationFrame(loadTilesNicely);
-
-  loadTilesForAxis('xy', startingTile, function (tile) {
-    tileCount++;
-
-    if (tile.id === startingTile) {
-      loadedStartingTile = true;
-      tile.draw();
-      $('#channelCanvas').show();
-
-      register2dInteractions();
-    }
-
-    if (tileCount === 256) {
-      done();
-    }
-  });
-
-  ThreeDViewRender();
-}
 
 function loadSeedMeshes(done) {
   var seedsLoaded = 0;
@@ -877,8 +595,9 @@ function loadSeedMeshes(done) {
 
 function loadTaskData(done) {
   waitForAll([
-    loadTiles,
+    
     loadSeedMeshes
+
   ], done);
 }
 
@@ -908,24 +627,26 @@ function playTask(task) {
   loadTaskData(function () {
     console.log('we are done loading!');
     clearInterval(loadingIndicator);
-    $('#loadingText').hide();
     $('#3dContainer').show();
 
     $('#submitTask').click(function () {
       calculateSuccessVals();
-      var url = 'https://eyewire.org/2.0/tasks/' + assignedTask.id + '/testsubmit';
-      $.post(url, 'status=finished&segments=' + assignedTask.selected.join()).done(function (res) {
-        $('#results').html('score ' + res.score + ', accuracy ' + res.accuracy + ', trailblazer ' + res.trailblazer);
-      });
+      
     });
 
-    $('#saveLie').click(startGuessing);
-    $('#beginLie').click(startLying);
+   
     $('#Switch').click(switchLie);   
 
     $('#ChooseA').click(function(){guessIndex(0);});
     $('#ChooseB').click(function(){guessIndex(1);});
+
+    for(var x = 0; x < consensusSegIds.length; x++){
+      console.log("adding "  + consensusSegIds[x]);
+      selectSegId(consensusSegIds[x]);
+    }
+    startGuessing();
   });
+
 }
 
 function guessIndex(index){
@@ -950,9 +671,25 @@ function getJSON(){
   return JSON.stringify(objs);
 }
 
+function loadJSON(JSONText){
+  gameDataObj = JSON.parse(JSONText);
+  addedSegIds = gameDataObj.addedSegIds;
+  remSegIds = gameDataObj.remSegIds;
+  consensusSegIds = gameDataObj.allSegIds;
+  taskId = gameDataObj.taskId;
+  comment = gameDataObj.comment;
+  origAccuracy = gameDataObj.accuracyDataOrig;
+  accuracyDataNew = gameDataObj.accuracyDataOrig;
+}
+
 ///TODO: move this into a button to start the task
 function start() {
-  $.post('https://eyewire.org/2.0/tasks/testassign').done(playTask);
+  var indexToLoad = Math.floor(Math.random() * JSONGuesses.length);
+  alert(indexToLoad);
+  alert(JSONGuesses[indexToLoad]);
+   loadJSON(JSONGuesses[indexToLoad]);
+  // loadJSON('{"addedSegIds":[3634,3209,2851],"remSegIds":[],"allSegIds":[2436,1978,2180,2492,3412,3539,3537,3605,3608,3588,3987,3634,3209,2851],"taskId":758040,"comment":"","lieAccuracy":0.8703303833014,"origAccuracy":0.9974903564623321}');
+  $.post('https://eyewire.org/2.0/tasks/' + taskId +'/testassign').done(playTask);
 }
 start();
 

@@ -1,122 +1,40 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js"></script>
 	<script src="THREESegment.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="citizensciencefibbers.css">
-	<link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,300" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<div id="nav">
-		<a class="box-shadow-menu"></a>
-		<div id="list" style="display: inline;">
-			<ul style="padding-top: 10px;">
-			<a id="homelogo" href="http://eyewire.org" ><img src="http://eyewire.org/static/images/eyewire_logo.png"></a>
-			<li>
-				<a target="_blank" href="http://blog.eyewire.org/en/">Blog</a>
-			</li>
-			<li>
-				<a target="_blank" href="http://wiki.eyewire.org/en/">Wiki</a>
-			</li>
-			<li>
-				<a target="_blank" href="http://forum.eyewire.org">Forum</a></li>
-			<li>
-				<a target="_blank" href="http://blog.eyewire.org/en/about/">About</a>
-			</li>
-			<li>
-				<a target="_blank" href="http://wiki.eyewire.org/en/FAQ">FAQ</a>
-			</li>
-			</ul>
-		</div>
+	<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
+	<br/>
+	<div id="instructions" style="font-size: 24px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
+	<br/>
 
-	 		<div style="width:250px; margin:auto;">
-	     		<a href="mainindex.html"><img style="padding-top: 10px;" src="logo.png" width="100%" height="100%"></a>
-	     	</div>
-	     	<div style="width:500px; margin:auto; padding-top: 10px;">
-		     	<div id="ModeText" style="font-size: 24px; text-align: center;">Create A Cube </div>
-				<div id="instructions" style="text-align: center;">Complete the branch as accurately as possible and press "Add Tricks" to begin tricking other players.</div>
-	     	</div>
-
-	     <div id="gameControls" style="margin:auto; padding-top: 20px;">
-			<button id="beginLie">Add Tricks</button> &nbsp;
-			<!-- <button id="howTo">How To Play</button> &nbsp; -->
-
-
-
-
-			<button id="saveLie" style="display: none;">Save Tricks</button>
-			<!-- <button id="submitTask" style="display: none;">Submit</button><br/> -->
-			<div id="results"></div>
-			<div id="CurrentlyViewing"/>
-		</div>
-
-
+	<div id="finishedLoading">
+		<button id="beginLie">Add Tricks</button> &nbsp;
+			<button id="saveLie" style="display: none;">Save Lie</button>
+		<!-- <button id="beginLie" >Begin Lying</button><br/> -->
+		<!-- <button id="submitTask" style="display: none;">Submit</button><br/> -->
+		<div id="results"></div>
+		<div id="CurrentlyViewing"/>
+		<div id="results"></div>
+<DIV id="grabstuff"></div> 
+		
 	</div>
 
-<!-- 	<div class="gameLogo">
-	 	<div style="width:150px; margin:0 auto;">
-	     	<a href=""><img style="padding-top: 40px;" src="http://www.wildplumshoppe.com/images/logo_placeholder.png" width="100%" height="100%"></a>
-	     	<div id="modeText" align="middle" style="font-side: 32px;">Make the thing!</div>
-	  	</div>
-	</div> -->
+	<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
+	<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
 
-	
-	<div id="content">
+	<div id="3dContainer" style="width: 500px; height: 500px;"></div>
 
-		<div class="createCubeWrapper">
-			<div class="side left">
-				<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
-				<div clss="threeD">
-					<div id="3dContainer" style="width: 500px; height: 500px;"></div>
-				</div>
-				<br/>
-				<div id="instructions" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
-				<br/>
-					<div id="results"></div>
-					<div id="CurrentlyViewing"/>
-				</div>
-			</div>
-
-			<div class="side right">
-				<div class="twoD">
-					<canvas id="channelCanvas" style="display: none;" width="256" height="256"></canvas>
-					<canvas id="bufferCanvas" style="display: none;"  width="128" height="128"></canvas>
-				</div>
-			</div>
-		</div>
-<!-- 
-		<div class="solveCubeWrapper">
-			<div class="side left">
-				<div id="loadingText" style="font-size: 24px; display: none;">Loading </div>
-				<div clss="threeD">
-					<div id="3dContainer" style="width: 500px; height: 500px;"></div>
-				</div>
-				<br/>
-				<div id="instructions" style="font-size: 14px;">w = up, s = down, click on 2d image to select and deselect segments, hover mouse over 3d view to change viewing angle</div>
-				<br/>
-					<div id="results"></div>
-					<div id="CurrentlyViewing"/>
-				</div>
-			</div>
-
-			<div class="side right">
-				
-			</div>
-		</div> -->		
-
+	<div id="gameControls">
+		
 	</div>
 
-<!-- 	<br>
-	<div id="GameControls" style="display: none;">
-		<div> <button id="Switch" value= "SwitchShowing"> Switch which cube I'm Showing </div>
-		<br/> 
 
-		<div> <button id="ChooseA" value="Choose A" >I think A is right </button> <button id="ChooseB" value="ChooseB"> I think B is right!</button></div>
-	</div> -->
 
-	<div id="grabstuff"></div> 
 </body>
 <script src="main.js"></script>
 </html>
